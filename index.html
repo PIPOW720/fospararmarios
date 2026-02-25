@@ -209,7 +209,7 @@
                         CONTROLE<br /><span class="text-primary">INDUSTRIAL</span><br />INTELIGENTE.
                     </h1>
                     <p class="font-body text-lg text-gray-300 max-w-md leading-relaxed">
-                        Gerencie o armario com precisão. Visibilidade total do estoque em tempo real.
+                        Gerencie o almoxarifado com precisão. Visibilidade total do estoque em tempo real.
                     </p>
                 </div>
                 <div class="flex gap-8 border-t border-white/10 pt-8">
@@ -282,6 +282,11 @@
                         <span
                             class="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
+                    <button onclick="handleGuestLogin()"
+                        class="flex w-full h-[48px] items-center justify-center gap-2 border-2 border-border hover:border-primary text-text-muted hover:text-primary font-display font-bold text-sm uppercase tracking-wide rounded transition-all group">
+                        <span class="material-symbols-outlined text-[18px]">visibility</span>
+                        Entrar como Visitante
+                    </button>
                 </div>
 
                 <div class="mt-10 pt-6 border-t border-dashed border-border flex flex-col gap-3">
@@ -349,7 +354,7 @@
                     <div id="user-menu"
                         class="hidden absolute right-0 mt-2 w-48 bg-white border border-border rounded-lg shadow-lg overflow-hidden z-50">
                         <button onclick="showView('admin')"
-                            class="flex items-center gap-2 w-full px-4 py-3 text-sm text-text-main hover:bg-bg-light transition-colors">
+                            class="guest-hide flex items-center gap-2 w-full px-4 py-3 text-sm text-text-main hover:bg-bg-light transition-colors">
                             <span class="material-symbols-outlined text-[18px]">add_box</span> Adicionar Item
                         </button>
                         <button onclick="showView('shortage')"
@@ -375,7 +380,7 @@
                 </div>
                 <div class="mt-auto p-5 border-t border-border">
                     <button onclick="showView('admin')"
-                        class="flex items-center gap-2 w-full px-3 py-3 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg font-display font-bold uppercase text-sm tracking-wide transition-all group">
+                        class="guest-hide flex items-center gap-2 w-full px-3 py-3 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg font-display font-bold uppercase text-sm tracking-wide transition-all group">
                         <span class="material-symbols-outlined text-[18px]">add</span> Adicionar Item
                     </button>
                     <button onclick="showView('shortage')"
@@ -834,10 +839,17 @@
             document.getElementById('app-view').classList.remove('active');
         }
 
+        let isGuest = false;
+
         function showApp(user) {
+            isGuest = user.isGuest || false;
             document.getElementById('login-view').classList.remove('active');
             document.getElementById('app-view').classList.add('active');
-            document.getElementById('user-email-display').textContent = user.email;
+            document.getElementById('user-email-display').textContent = isGuest ? '👁 Visitante' : user.email;
+            // Hide admin controls for guests
+            document.querySelectorAll('.guest-hide').forEach(el => {
+                el.style.display = isGuest ? 'none' : '';
+            });
             buildCategoryNav();
             populateCategorySelect();
             loadItems();
@@ -878,6 +890,10 @@
         async function handleLogout() {
             await db.auth.signOut();
             closeUserMenu();
+        }
+
+        function handleGuestLogin() {
+            showApp({ email: 'visitante@fospar.com.br', isGuest: true });
         }
 
         function showLoginError(msg) {
