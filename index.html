@@ -73,14 +73,6 @@
             background: #04aea0;
         }
 
-        .view {
-            display: none;
-        }
-
-        .view.active {
-            display: flex;
-        }
-
         .item-card {
             transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
         }
@@ -130,6 +122,7 @@
             transition: transform 0.3s ease;
             z-index: 9999;
             min-width: 280px;
+            max-width: calc(100vw - 32px);
         }
 
         #toast.show {
@@ -166,14 +159,18 @@
             color: white;
         }
 
+        /* FIX 1: Added standard 'appearance' property alongside vendor prefixes */
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
             -webkit-appearance: none;
+            appearance: none;
             margin: 0;
         }
 
+        /* FIX 2: Added standard 'appearance' property */
         input[type=number] {
             -moz-appearance: textfield;
+            appearance: textfield;
         }
 
         .material-symbols-outlined {
@@ -185,6 +182,227 @@
                     transparent, transparent 10px,
                     rgba(4, 174, 160, 0.05) 10px, rgba(4, 174, 160, 0.05) 20px);
         }
+
+        /* ── MOBILE SIDEBAR OVERLAY ── */
+        #sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 35, 33, 0.55);
+            z-index: 30;
+        }
+
+        #sidebar-overlay.open {
+            display: block;
+        }
+
+        /* Sidebar slide-in on mobile */
+        #main-sidebar {
+            transition: transform 0.25s ease;
+        }
+
+        @media (max-width: 767px) {
+            #main-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 40;
+                transform: translateX(-100%);
+            }
+
+            #main-sidebar.open {
+                transform: translateX(0);
+            }
+
+            /* Bottom navigation bar for mobile */
+            #mobile-bottom-nav {
+                display: flex;
+            }
+
+            /* Hide bottom nav on desktop */
+            #app-view .desktop-only-sidebar-footer {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 768px) {
+            #mobile-bottom-nav {
+                display: none !important;
+            }
+
+            #main-sidebar {
+                position: relative;
+                transform: none !important;
+            }
+
+            #sidebar-overlay {
+                display: none !important;
+            }
+        }
+
+        /* Mobile bottom nav */
+        #mobile-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            border-top: 1px solid #DCE3E1;
+            z-index: 20;
+            align-items: stretch;
+            justify-content: stretch;
+        }
+
+        #mobile-bottom-nav button {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            font-size: 10px;
+            font-family: 'Barlow', sans-serif;
+            font-weight: 600;
+            color: #63706E;
+            transition: color 0.15s;
+        }
+
+        #mobile-bottom-nav button.active-nav {
+            color: #04aea0;
+        }
+
+        /* Add bottom padding on mobile to avoid content hiding behind bottom nav */
+        @media (max-width: 767px) {
+
+            #items-grid,
+            #view-shortage,
+            #view-admin {
+                padding-bottom: 80px !important;
+            }
+
+            #view-inventory {
+                padding-bottom: 80px !important;
+            }
+        }
+
+        /* Mobile search bar full width */
+        @media (max-width: 767px) {
+            #mobile-search-bar {
+                display: flex;
+            }
+        }
+
+        @media (min-width: 768px) {
+            #mobile-search-bar {
+                display: none;
+            }
+        }
+
+        /* Item card height adjustments for mobile */
+        @media (max-width: 480px) {
+            .item-card {
+                height: 260px !important;
+            }
+
+            .item-card .item-img-section {
+                height: 48% !important;
+            }
+        }
+
+        /* Modal full screen on mobile */
+        @media (max-width: 767px) {
+            #item-modal>div {
+                flex-direction: column;
+                max-height: 95vh;
+                width: 100%;
+                max-width: 100%;
+                margin: 0;
+                border-radius: 16px 16px 0 0;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+            }
+
+            #item-modal {
+                align-items: flex-end !important;
+                padding: 0 !important;
+            }
+
+            #modal-side-panel {
+                flex-direction: row !important;
+                width: 100% !important;
+                border-right: none !important;
+                border-bottom: 1px solid #DCE3E1 !important;
+                padding: 16px !important;
+                gap: 12px !important;
+                align-items: center !important;
+            }
+
+            #modal-img-container {
+                width: 80px !important;
+                height: 80px !important;
+                flex-shrink: 0 !important;
+                aspect-ratio: auto !important;
+            }
+
+            #modal-side-info {
+                flex: 1 !important;
+            }
+
+            #modal-delete-btn {
+                margin-top: 0 !important;
+            }
+
+            #modal-last-updated-block {
+                display: none;
+            }
+        }
+
+        /* Scrollable horizontal category pills on mobile */
+        #mobile-category-pills {
+            display: none;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 10px 16px;
+            background: white;
+            border-bottom: 1px solid #DCE3E1;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        #mobile-category-pills::-webkit-scrollbar {
+            display: none;
+        }
+
+        @media (max-width: 767px) {
+            #mobile-category-pills {
+                display: flex;
+            }
+        }
+
+        .cat-pill {
+            flex-shrink: 0;
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1.5px solid #DCE3E1;
+            font-family: 'Oswald', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: #63706E;
+            background: #f5f8f8;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .cat-pill.active {
+            background: #04aea0;
+            border-color: #04aea0;
+            color: white;
         }
     </style>
 </head>
@@ -209,7 +427,7 @@
                         CONTROLE<br /><span class="text-primary">ARMARIO</span><br />TERMINAL.
                     </h1>
                     <p class="font-body text-lg text-gray-300 max-w-md leading-relaxed">
-                        Gerencie o Armario do Terminal o com precisão. Visibilidade total do estoque em tempo real.
+                        Gerencie o Armario do Terminal com precisão. Visibilidade total do estoque em tempo real.
                     </p>
                 </div>
                 <div class="flex gap-8 border-t border-white/10 pt-8">
@@ -228,17 +446,18 @@
                 </div>
             </div>
         </div>
-        <div class="flex flex-1 flex-col justify-center items-center bg-white p-8 lg:p-24 relative">
+        <div class="flex flex-1 flex-col justify-center items-center bg-white p-6 lg:p-24 relative min-h-screen">
             <div class="lg:hidden absolute inset-0 opacity-5 pointer-events-none"
                 style="background-image: radial-gradient(#04aea0 1px, transparent 1px); background-size: 24px 24px;">
             </div>
             <div class="w-full max-w-[480px] z-10 flex flex-col">
-                <div class="mb-10 text-center lg:text-left">
+                <div class="mb-8 text-center lg:text-left">
                     <div class="inline-flex lg:hidden items-center gap-2 mb-6 justify-center">
                         <img src="logo-fospar.svg" alt="Fospar" class="h-8 w-auto" />
                     </div>
-                    <h3 class="font-display text-4xl font-bold text-text-main mb-2">ACESSO RESTRITO</h3>
-                    <p class="font-body text-text-muted text-lg">Insira suas credenciais para acessar o inventário.</p>
+                    <h3 class="font-display text-3xl sm:text-4xl font-bold text-text-main mb-2">ACESSO RESTRITO</h3>
+                    <p class="font-body text-text-muted text-base sm:text-lg">Insira suas credenciais para acessar o
+                        inventário.</p>
                 </div>
 
                 <div id="login-error"
@@ -247,7 +466,7 @@
                     <span id="login-error-msg"></span>
                 </div>
 
-                <div class="flex flex-col gap-6">
+                <div class="flex flex-col gap-5">
                     <div>
                         <label
                             class="block font-display font-bold text-sm uppercase tracking-wider text-text-main mb-2">E-mail</label>
@@ -256,8 +475,8 @@
                                 <span class="material-symbols-outlined text-text-muted">mail</span>
                             </div>
                             <input id="login-email"
-                                class="block w-full pl-12 pr-4 h-[56px] bg-bg-light border border-border text-text-main text-lg placeholder:text-gray-400 focus:ring-2 focus:ring-primary focus:border-primary rounded outline-none"
-                                type="email" placeholder="nome@fospar.com.br" />
+                                class="block w-full pl-12 pr-4 h-[52px] sm:h-[56px] bg-bg-light border border-border text-text-main text-base sm:text-lg placeholder:text-gray-400 focus:ring-2 focus:ring-primary focus:border-primary rounded outline-none"
+                                type="email" placeholder="nome@fospar.com.br" autocomplete="email" />
                         </div>
                     </div>
                     <div>
@@ -268,8 +487,8 @@
                                 <span class="material-symbols-outlined text-text-muted">lock</span>
                             </div>
                             <input id="login-password"
-                                class="block w-full pl-12 pr-12 h-[56px] bg-bg-light border border-border text-text-main text-lg placeholder:text-gray-400 focus:ring-2 focus:ring-primary focus:border-primary rounded outline-none"
-                                type="password" placeholder="••••••••" />
+                                class="block w-full pl-12 pr-12 h-[52px] sm:h-[56px] bg-bg-light border border-border text-text-main text-base sm:text-lg placeholder:text-gray-400 focus:ring-2 focus:ring-primary focus:border-primary rounded outline-none"
+                                type="password" placeholder="••••••••" autocomplete="current-password" />
                             <button onclick="togglePassword()"
                                 class="absolute inset-y-0 right-0 pr-4 flex items-center text-text-muted hover:text-primary">
                                 <span id="pw-icon" class="material-symbols-outlined">visibility</span>
@@ -277,27 +496,27 @@
                         </div>
                     </div>
                     <button id="login-btn" onclick="handleLogin()"
-                        class="mt-2 flex w-full h-[56px] items-center justify-center bg-primary hover:bg-primary-dark text-white font-display font-bold text-xl uppercase tracking-wide rounded transition-all group">
+                        class="mt-1 flex w-full h-[52px] sm:h-[56px] items-center justify-center bg-primary hover:bg-primary-dark active:bg-primary-dark text-white font-display font-bold text-lg sm:text-xl uppercase tracking-wide rounded transition-all group">
                         <span id="login-btn-text">Acessar Vitrine</span>
                         <span
                             class="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
                     <button onclick="handleGuestLogin()"
-                        class="flex w-full h-[48px] items-center justify-center gap-2 border-2 border-border hover:border-primary text-text-muted hover:text-primary font-display font-bold text-sm uppercase tracking-wide rounded transition-all group">
+                        class="flex w-full h-[48px] items-center justify-center gap-2 border-2 border-border hover:border-primary active:border-primary text-text-muted hover:text-primary font-display font-bold text-sm uppercase tracking-wide rounded transition-all">
                         <span class="material-symbols-outlined text-[18px]">visibility</span>
                         Entrar como Visitante
                     </button>
                 </div>
 
-                <div class="mt-10 pt-6 border-t border-dashed border-border flex flex-col gap-3">
+                <div class="mt-8 pt-5 border-t border-dashed border-border flex flex-col gap-3">
                     <button onclick="handleSignup()"
                         class="text-sm text-text-muted hover:text-primary text-center underline decoration-dotted">
                         Primeiro acesso? Criar conta
                     </button>
-                    <div class="flex items-center justify-between text-sm text-text-muted">
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[18px]">headset_mic</span>
-                            <span>Suporte TI Email: davi.perez@mosaicco.com</span>
+                    <div class="flex items-center justify-between text-xs sm:text-sm text-text-muted">
+                        <div class="flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px]">headset_mic</span>
+                            <span>Suporte: davi.perez@mosaicco.com</span>
                         </div>
                         <span>v1.0.0</span>
                     </div>
@@ -310,13 +529,20 @@
     <!-- MAIN APP VIEW -->
     <!-- ============================================================ -->
     <div id="app-view" class="flex flex-col h-screen">
+
         <!-- Header -->
         <header
-            class="h-20 bg-white border-b border-border flex items-center justify-between px-6 flex-shrink-0 z-20 shadow-sm">
-            <div class="flex items-center">
-                <img src="logo-fospar.svg" alt="Fospar" class="h-10 w-auto" />
+            class="h-16 md:h-20 bg-white border-b border-border flex items-center justify-between px-4 md:px-6 flex-shrink-0 z-20 shadow-sm">
+            <!-- Left: hamburger (mobile) + logo -->
+            <div class="flex items-center gap-3">
+                <button id="sidebar-toggle-btn" onclick="toggleSidebar()"
+                    class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-text-muted hover:bg-bg-light transition-colors">
+                    <span class="material-symbols-outlined text-[22px]">menu</span>
+                </button>
+                <img src="logo-fospar.svg" alt="Fospar" class="h-8 md:h-10 w-auto" />
             </div>
-            <!-- Search — fixed with oninput -->
+
+            <!-- Search — desktop only -->
             <div class="hidden md:flex flex-1 max-w-[400px] mx-8">
                 <div class="relative w-full">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
@@ -331,25 +557,37 @@
                     </button>
                 </div>
             </div>
-            <div class="flex items-center gap-4">
+
+            <!-- Right: shortage + user -->
+            <div class="flex items-center gap-2 md:gap-4">
+                <!-- Mobile search icon -->
+                <button onclick="toggleMobileSearch()"
+                    class="md:hidden flex items-center justify-center w-9 h-9 rounded-lg text-text-muted hover:bg-bg-light transition-colors">
+                    <span class="material-symbols-outlined text-[22px]">search</span>
+                </button>
+
                 <button onclick="showView('shortage')"
-                    class="flex items-center gap-2 text-secondary hover:text-red-700 font-bold text-sm uppercase tracking-wide transition-colors relative">
+                    class="flex items-center gap-1.5 text-secondary hover:text-red-700 font-bold text-xs md:text-sm uppercase tracking-wide transition-colors relative">
                     <span class="material-symbols-outlined text-[20px]">warning</span>
                     <span class="hidden md:inline">Falta</span>
                     <span id="shortage-badge"
                         class="hidden absolute -top-2 -right-2 bg-secondary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center"></span>
                 </button>
-                <div class="h-8 w-[1px] bg-border"></div>
+
+                <div class="h-6 w-[1px] bg-border hidden md:block"></div>
+
                 <div class="relative">
                     <button onclick="toggleUserMenu()"
-                        class="flex items-center gap-2 hover:bg-bg-light p-2 rounded-lg transition-colors">
+                        class="flex items-center gap-1.5 hover:bg-bg-light p-1.5 md:p-2 rounded-lg transition-colors">
                         <div
-                            class="size-9 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary">
-                            <span class="material-symbols-outlined text-primary text-[18px]">person</span>
+                            class="size-8 md:size-9 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary">
+                            <span
+                                class="material-symbols-outlined text-primary text-[16px] md:text-[18px]">person</span>
                         </div>
                         <span id="user-email-display"
                             class="text-sm text-text-muted hidden md:inline truncate max-w-[140px]"></span>
-                        <span class="material-symbols-outlined text-text-muted text-[18px]">expand_more</span>
+                        <span
+                            class="material-symbols-outlined text-text-muted text-[18px] hidden md:inline">expand_more</span>
                     </button>
                     <div id="user-menu"
                         class="hidden absolute right-0 mt-2 w-48 bg-white border border-border rounded-lg shadow-lg overflow-hidden z-50">
@@ -371,14 +609,44 @@
             </div>
         </header>
 
-        <div class="flex flex-1 overflow-hidden">
+        <!-- Mobile search bar (collapsible) -->
+        <div id="mobile-search-bar" class="hidden bg-white border-b border-border px-4 py-2.5 z-10">
+            <div class="relative w-full">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
+                    <span class="material-symbols-outlined text-[20px]">search</span>
+                </div>
+                <input id="mobile-search-input"
+                    class="block w-full pl-10 pr-10 py-2.5 border border-border rounded-lg bg-bg-light text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                    placeholder="Pesquisar item..." type="text"
+                    oninput="handleSearch(this.value); syncSearchInputs('mobile')" />
+                <button onclick="closeMobileSearch()"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-primary">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile category pills -->
+        <div id="mobile-category-pills"></div>
+
+        <div class="flex flex-1 overflow-hidden relative">
+
+            <!-- Sidebar overlay (mobile) -->
+            <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
             <!-- Sidebar -->
-            <aside class="w-[250px] bg-white border-r border-border flex flex-col flex-shrink-0 overflow-y-auto">
+            <aside id="main-sidebar"
+                class="w-[250px] bg-white border-r border-border flex flex-col flex-shrink-0 overflow-y-auto">
                 <div class="p-5">
-                    <h2 class="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Caixas</h2>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-xs font-bold text-text-muted uppercase tracking-wider">Caixas</h2>
+                        <button onclick="closeSidebar()" class="md:hidden text-text-muted hover:text-primary">
+                            <span class="material-symbols-outlined text-[20px]">close</span>
+                        </button>
+                    </div>
                     <nav id="category-nav" class="flex flex-col gap-1"></nav>
                 </div>
-                <div class="mt-auto p-5 border-t border-border">
+                <div class="mt-auto p-5 border-t border-border desktop-only-sidebar-footer">
                     <button onclick="showView('admin')"
                         class="guest-hide flex items-center gap-2 w-full px-3 py-3 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg font-display font-bold uppercase text-sm tracking-wide transition-all group">
                         <span class="material-symbols-outlined text-[18px]">add</span> Adicionar Item
@@ -398,15 +666,16 @@
             <main class="flex-1 overflow-y-auto relative">
 
                 <!-- INVENTORY VIEW -->
-                <div id="view-inventory" class="p-8">
-                    <div class="flex items-center justify-between mb-8">
+                <div id="view-inventory" class="p-4 md:p-8">
+                    <div class="flex items-center justify-between mb-5 md:mb-8">
                         <div>
                             <h2 id="view-title"
-                                class="font-display text-3xl font-bold text-text-main flex items-center gap-2">
-                                <span class="material-symbols-outlined text-primary text-3xl">inventory_2</span>
+                                class="font-display text-xl md:text-3xl font-bold text-text-main flex items-center gap-2">
+                                <span
+                                    class="material-symbols-outlined text-primary text-xl md:text-3xl">inventory_2</span>
                                 TODOS OS ITENS
                             </h2>
-                            <p id="view-subtitle" class="text-text-muted mt-1 text-sm"></p>
+                            <p id="view-subtitle" class="text-text-muted mt-0.5 md:mt-1 text-xs md:text-sm"></p>
                         </div>
                         <div class="flex bg-white rounded-lg border border-border p-1 shadow-sm">
                             <button onclick="setGridCols(4)" class="p-1.5 rounded text-primary bg-primary/10">
@@ -419,12 +688,15 @@
                     </div>
 
                     <div id="items-grid"
-                        class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 pb-16"></div>
+                        class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-5 pb-16">
+                    </div>
 
-                    <div id="empty-state" class="hidden flex-col items-center justify-center py-24 text-center">
-                        <span class="material-symbols-outlined text-6xl text-text-muted mb-4">inventory_2</span>
-                        <p class="font-display text-2xl font-bold text-text-muted">Nenhum item encontrado</p>
-                        <p class="text-text-muted mt-2">Tente outra busca ou adicione itens ao estoque.</p>
+                    <div id="empty-state"
+                        class="hidden flex-col items-center justify-center py-16 md:py-24 text-center">
+                        <span
+                            class="material-symbols-outlined text-5xl md:text-6xl text-text-muted mb-4">inventory_2</span>
+                        <p class="font-display text-xl md:text-2xl font-bold text-text-muted">Nenhum item encontrado</p>
+                        <p class="text-text-muted mt-2 text-sm">Tente outra busca ou adicione itens ao estoque.</p>
                         <button onclick="showView('admin')"
                             class="mt-6 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-colors">
                             + Adicionar Item
@@ -433,95 +705,109 @@
                 </div>
 
                 <!-- SHORTAGE REPORT VIEW -->
-                <div id="view-shortage" class="hidden p-8">
-                    <div class="flex items-end justify-between mb-8">
+                <div id="view-shortage" class="hidden p-4 md:p-8">
+                    <div class="flex items-start md:items-end justify-between mb-6 md:mb-8 gap-3">
                         <div>
                             <button onclick="showView('inventory')"
-                                class="flex items-center gap-1 text-sm text-text-muted hover:text-primary mb-3 transition-colors">
+                                class="flex items-center gap-1 text-sm text-text-muted hover:text-primary mb-2 transition-colors">
                                 <span class="material-symbols-outlined text-base">arrow_back</span> Voltar
                             </button>
-                            <h2 class="font-display text-4xl font-bold text-text-main uppercase">Relatório de Falta</h2>
-                            <p class="text-text-muted mt-1">Itens com estoque baixo ou crítico para reposição.</p>
+                            <h2 class="font-display text-2xl md:text-4xl font-bold text-text-main uppercase">Relatório
+                                de Falta</h2>
+                            <p class="text-text-muted mt-1 text-sm hidden md:block">Itens com estoque baixo ou crítico
+                                para reposição.</p>
                         </div>
                         <button onclick="window.print()"
-                            class="flex items-center gap-2 px-5 py-2.5 bg-white border border-border rounded-lg text-sm font-bold hover:bg-bg-light transition-colors shadow-sm">
-                            <span class="material-symbols-outlined text-[18px]">print</span> Imprimir
+                            class="flex items-center gap-2 px-4 py-2.5 bg-white border border-border rounded-lg text-sm font-bold hover:bg-bg-light transition-colors shadow-sm flex-shrink-0">
+                            <span class="material-symbols-outlined text-[18px]">print</span>
+                            <span class="hidden sm:inline">Imprimir</span>
                         </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                    <div class="grid grid-cols-3 gap-3 md:gap-5 mb-6 md:mb-8">
                         <div
-                            class="bg-white border-l-4 border-secondary p-5 rounded-lg shadow-sm flex items-center justify-between">
+                            class="bg-white border-l-4 border-secondary p-3 md:p-5 rounded-lg shadow-sm flex items-center justify-between">
                             <div>
-                                <p class="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">Total em
-                                    Falta</p>
-                                <p class="text-3xl font-display font-bold" id="shortage-count">0 <span
-                                        class="text-sm text-text-muted font-body font-normal">itens</span></p>
-                            </div>
-                            <span class="material-symbols-outlined text-secondary text-3xl">warning</span>
-                        </div>
-                        <div
-                            class="bg-white border-l-4 border-red-500 p-5 rounded-lg shadow-sm flex items-center justify-between">
-                            <div>
-                                <p class="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">Crítico
-                                    (Zerado)</p>
-                                <p class="text-3xl font-display font-bold" id="critical-count">0 <span
-                                        class="text-sm text-text-muted font-body font-normal">itens</span></p>
-                            </div>
-                            <span class="material-symbols-outlined text-red-500 text-3xl pulse">error</span>
-                        </div>
-                        <div
-                            class="bg-white border-l-4 border-amber-500 p-5 rounded-lg shadow-sm flex items-center justify-between">
-                            <div>
-                                <p class="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">Baixo Estoque
+                                <p
+                                    class="text-text-muted text-[10px] md:text-xs font-bold uppercase tracking-wider mb-1">
+                                    Total em Falta</p>
+                                <p class="text-2xl md:text-3xl font-display font-bold" id="shortage-count">0 <span
+                                        class="text-xs md:text-sm text-text-muted font-body font-normal">itens</span>
                                 </p>
-                                <p class="text-3xl font-display font-bold" id="low-count">0 <span
-                                        class="text-sm text-text-muted font-body font-normal">itens</span></p>
                             </div>
-                            <span class="material-symbols-outlined text-amber-500 text-3xl">trending_down</span>
+                            <span
+                                class="material-symbols-outlined text-secondary text-2xl md:text-3xl hidden sm:block">warning</span>
+                        </div>
+                        <div
+                            class="bg-white border-l-4 border-red-500 p-3 md:p-5 rounded-lg shadow-sm flex items-center justify-between">
+                            <div>
+                                <p
+                                    class="text-text-muted text-[10px] md:text-xs font-bold uppercase tracking-wider mb-1">
+                                    Crítico</p>
+                                <p class="text-2xl md:text-3xl font-display font-bold" id="critical-count">0 <span
+                                        class="text-xs md:text-sm text-text-muted font-body font-normal">itens</span>
+                                </p>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-red-500 text-2xl md:text-3xl pulse hidden sm:block">error</span>
+                        </div>
+                        <div
+                            class="bg-white border-l-4 border-amber-500 p-3 md:p-5 rounded-lg shadow-sm flex items-center justify-between">
+                            <div>
+                                <p
+                                    class="text-text-muted text-[10px] md:text-xs font-bold uppercase tracking-wider mb-1">
+                                    Baixo</p>
+                                <p class="text-2xl md:text-3xl font-display font-bold" id="low-count">0 <span
+                                        class="text-xs md:text-sm text-text-muted font-body font-normal">itens</span>
+                                </p>
+                            </div>
+                            <span
+                                class="material-symbols-outlined text-amber-500 text-2xl md:text-3xl hidden sm:block">trending_down</span>
                         </div>
                     </div>
                     <div class="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left">
+                            <table class="w-full text-left min-w-[500px]">
                                 <thead class="bg-primary text-white font-display text-xs uppercase tracking-wider">
                                     <tr>
-                                        <th class="py-4 px-5 w-20">Foto</th>
-                                        <th class="py-4 px-5">Item / SKU</th>
-                                        <th class="py-4 px-5 w-40">Caixa</th>
-                                        <th class="py-4 px-5 w-36">Status</th>
-                                        <th class="py-4 px-5 w-28 text-center">Qtd.</th>
-                                        <th class="py-4 px-5 w-24 text-right">Ação</th>
+                                        <th class="py-4 px-3 md:px-5 w-16 md:w-20">Foto</th>
+                                        <th class="py-4 px-3 md:px-5">Item / SKU</th>
+                                        <th class="py-4 px-3 md:px-5 w-32 md:w-40">Caixa</th>
+                                        <th class="py-4 px-3 md:px-5 w-28 md:w-36">Status</th>
+                                        <th class="py-4 px-3 md:px-5 w-20 md:w-28 text-center">Qtd.</th>
+                                        <th class="py-4 px-3 md:px-5 w-16 md:w-24 text-right">Ação</th>
                                     </tr>
                                 </thead>
                                 <tbody id="shortage-tbody" class="text-sm"></tbody>
                             </table>
                         </div>
-                        <div id="shortage-empty" class="hidden text-center py-16 text-text-muted">
+                        <div id="shortage-empty" class="hidden text-center py-12 md:py-16 text-text-muted">
                             <span
                                 class="material-symbols-outlined text-5xl text-green-500 mb-3 block">check_circle</span>
                             <p class="font-display text-xl font-bold text-green-700">Tudo em ordem!</p>
-                            <p class="mt-1">Nenhum item em falta ou com estoque crítico.</p>
+                            <p class="mt-1 text-sm">Nenhum item em falta ou com estoque crítico.</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- ADMIN VIEW -->
-                <div id="view-admin" class="hidden p-8">
+                <div id="view-admin" class="hidden p-4 md:p-8">
                     <button onclick="showView('inventory')"
                         class="flex items-center gap-1 text-sm text-text-muted hover:text-primary mb-5 transition-colors">
                         <span class="material-symbols-outlined text-base">arrow_back</span> Voltar ao Inventário
                     </button>
                     <div class="max-w-3xl mx-auto">
-                        <div class="mb-8">
-                            <h2 class="font-display text-4xl font-bold text-text-main uppercase" id="admin-form-title">
+                        <div class="mb-6 md:mb-8">
+                            <h2 class="font-display text-2xl md:text-4xl font-bold text-text-main uppercase"
+                                id="admin-form-title">
                                 Adicionar Item ao Estoque</h2>
-                            <p class="text-text-muted mt-1">Cadastre um novo produto no catálogo digital.</p>
+                            <p class="text-text-muted mt-1 text-sm">Cadastre um novo produto no catálogo digital.</p>
                         </div>
                         <div class="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
                             <div class="h-1.5 w-full bg-primary stripe-bg"></div>
-                            <div class="p-8">
+                            <div class="p-5 md:p-8">
                                 <input type="hidden" id="edit-item-id" />
-                                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
+                                    <!-- Image upload -->
                                     <div class="md:col-span-4">
                                         <label
                                             class="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">Imagem
@@ -529,7 +815,7 @@
                                         <div class="relative group cursor-pointer"
                                             onclick="document.getElementById('img-upload').click()">
                                             <div id="img-preview-container"
-                                                class="aspect-square w-full rounded border-2 border-dashed border-border bg-bg-light hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center text-center p-6 overflow-hidden">
+                                                class="aspect-square w-full max-w-[200px] mx-auto md:max-w-none rounded border-2 border-dashed border-border bg-bg-light hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center text-center p-6 overflow-hidden">
                                                 <img id="img-preview" src="" alt=""
                                                     class="hidden w-full h-full object-contain absolute inset-0" />
                                                 <div id="img-upload-placeholder" class="flex flex-col items-center">
@@ -543,7 +829,7 @@
                                                 onchange="previewImage(event)" />
                                         </div>
                                         <button id="remove-img-btn" onclick="removeImage()"
-                                            class="hidden mt-2 text-xs text-red-500 hover:text-red-700 flex items-center gap-1">
+                                            class="hidden mt-2 text-xs text-red-500 hover:text-red-700 flex items-center gap-1 mx-auto md:mx-0">
                                             <span class="material-symbols-outlined text-sm">delete</span> Remover imagem
                                         </button>
                                         <div class="mt-3">
@@ -554,6 +840,7 @@
                                                 onchange="previewImageUrl(this.value)" />
                                         </div>
                                     </div>
+                                    <!-- Form fields -->
                                     <div class="md:col-span-8 flex flex-col gap-5">
                                         <div>
                                             <label
@@ -599,35 +886,35 @@
                                             <label
                                                 class="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">Status
                                                 do Estoque</label>
-                                            <div class="flex gap-3">
+                                            <div class="flex gap-2 md:gap-3">
                                                 <label class="flex-1 cursor-pointer">
                                                     <input type="radio" name="f-status" value="ok" class="peer sr-only"
                                                         checked />
                                                     <div
-                                                        class="p-3 rounded border border-border bg-bg-light peer-checked:border-primary peer-checked:bg-primary/5 flex items-center gap-2 transition-all">
+                                                        class="p-2 md:p-3 rounded border border-border bg-bg-light peer-checked:border-primary peer-checked:bg-primary/5 flex flex-col md:flex-row items-center gap-1 md:gap-2 transition-all text-center md:text-left">
                                                         <span
-                                                            class="material-symbols-outlined text-sm text-text-muted peer-checked:text-primary">check_circle</span>
-                                                        <span class="text-sm font-bold">Em Estoque</span>
+                                                            class="material-symbols-outlined text-sm text-text-muted">check_circle</span>
+                                                        <span class="text-xs md:text-sm font-bold">OK</span>
                                                     </div>
                                                 </label>
                                                 <label class="flex-1 cursor-pointer">
                                                     <input type="radio" name="f-status" value="low"
                                                         class="peer sr-only" />
                                                     <div
-                                                        class="p-3 rounded border border-border bg-bg-light peer-checked:border-amber-500 peer-checked:bg-amber-50 flex items-center gap-2 transition-all">
+                                                        class="p-2 md:p-3 rounded border border-border bg-bg-light peer-checked:border-amber-500 peer-checked:bg-amber-50 flex flex-col md:flex-row items-center gap-1 md:gap-2 transition-all text-center md:text-left">
                                                         <span
                                                             class="material-symbols-outlined text-sm text-text-muted">trending_down</span>
-                                                        <span class="text-sm font-bold">Baixo</span>
+                                                        <span class="text-xs md:text-sm font-bold">Baixo</span>
                                                     </div>
                                                 </label>
                                                 <label class="flex-1 cursor-pointer">
                                                     <input type="radio" name="f-status" value="critical"
                                                         class="peer sr-only" />
                                                     <div
-                                                        class="p-3 rounded border border-border bg-bg-light peer-checked:border-secondary peer-checked:bg-secondary/5 flex items-center gap-2 transition-all">
+                                                        class="p-2 md:p-3 rounded border border-border bg-bg-light peer-checked:border-secondary peer-checked:bg-secondary/5 flex flex-col md:flex-row items-center gap-1 md:gap-2 transition-all text-center md:text-left">
                                                         <span
                                                             class="material-symbols-outlined text-sm text-text-muted">warning</span>
-                                                        <span class="text-sm font-bold">Crítico</span>
+                                                        <span class="text-xs md:text-sm font-bold">Crítico</span>
                                                     </div>
                                                 </label>
                                             </div>
@@ -642,11 +929,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-border">
+                                <div
+                                    class="flex items-center justify-end gap-3 mt-6 md:mt-8 pt-5 md:pt-6 border-t border-border">
                                     <button onclick="resetForm(); showView('inventory')"
-                                        class="px-6 py-2.5 text-sm font-bold text-text-muted hover:text-text-main hover:bg-bg-light rounded-lg transition-colors">Cancelar</button>
+                                        class="px-5 py-2.5 text-sm font-bold text-text-muted hover:text-text-main hover:bg-bg-light rounded-lg transition-colors">Cancelar</button>
                                     <button onclick="saveItem()" id="save-btn"
-                                        class="flex items-center gap-2 px-8 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold uppercase tracking-wide rounded-lg transition-all shadow-sm">
+                                        class="flex items-center gap-2 px-6 md:px-8 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold uppercase tracking-wide rounded-lg transition-all shadow-sm">
                                         <span class="material-symbols-outlined text-[18px]">save</span>
                                         <span id="save-btn-text">Salvar Item</span>
                                     </button>
@@ -657,6 +945,30 @@
                 </div>
             </main>
         </div>
+
+        <!-- Mobile bottom navigation -->
+        <nav id="mobile-bottom-nav">
+            <button id="nav-btn-inventory" onclick="showView('inventory')" class="active-nav">
+                <span class="material-symbols-outlined text-[22px]">inventory_2</span>
+                <span>Itens</span>
+            </button>
+            <button id="nav-btn-shortage" onclick="showView('shortage')">
+                <span class="material-symbols-outlined text-[22px] relative">
+                    warning
+                    <span id="shortage-badge-mobile"
+                        class="hidden absolute -top-1 -right-1 bg-secondary text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center"></span>
+                </span>
+                <span>Falta</span>
+            </button>
+            <button id="nav-btn-admin" onclick="showView('admin')" class="guest-hide">
+                <span class="material-symbols-outlined text-[22px]">add_circle</span>
+                <span>Adicionar</span>
+            </button>
+            <button onclick="handleLogout()">
+                <span class="material-symbols-outlined text-[22px]">logout</span>
+                <span>Sair</span>
+            </button>
+        </nav>
     </div>
 
     <!-- ============================================================ -->
@@ -666,12 +978,13 @@
         <div
             class="bg-white w-full max-w-[780px] rounded-lg shadow-2xl border border-border flex flex-col md:flex-row overflow-hidden relative max-h-[90vh]">
             <button onclick="closeModal()"
-                class="absolute top-4 right-4 text-text-muted hover:text-primary z-10 bg-white/90 rounded-full p-1">
+                class="absolute top-3 right-3 text-text-muted hover:text-primary z-10 bg-white/90 rounded-full p-1">
                 <span class="material-symbols-outlined">close</span>
             </button>
-            <div
-                class="w-full md:w-[300px] bg-bg-light border-b md:border-b-0 md:border-r border-border p-6 flex flex-col gap-5 flex-shrink-0">
-                <div
+            <!-- Side panel -->
+            <div id="modal-side-panel"
+                class="w-full md:w-[300px] bg-bg-light border-b md:border-b-0 md:border-r border-border p-4 md:p-6 flex flex-col gap-4 md:gap-5 flex-shrink-0">
+                <div id="modal-img-container"
                     class="relative aspect-square bg-white rounded border border-border flex items-center justify-center p-4 overflow-hidden">
                     <img id="modal-img" src="" alt="" class="max-w-full max-h-full object-contain mix-blend-multiply" />
                     <div id="modal-img-placeholder" class="hidden flex-col items-center text-text-muted">
@@ -679,14 +992,15 @@
                         <p class="text-xs mt-1">Sem imagem</p>
                     </div>
                 </div>
-                <div class="flex items-start gap-3 p-3 bg-white border border-border rounded text-sm text-text-muted">
+                <div id="modal-last-updated-block"
+                    class="flex items-start gap-3 p-3 bg-white border border-border rounded text-sm text-text-muted">
                     <span class="material-symbols-outlined text-primary flex-shrink-0 text-[20px]">history</span>
                     <div>
                         <span class="font-medium text-text-main block">Última atualização</span>
                         <span id="modal-updated" class="text-xs"></span>
                     </div>
                 </div>
-                <div>
+                <div id="modal-side-info">
                     <div class="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Localização</div>
                     <div id="modal-category-badge"
                         class="inline-flex items-center gap-2 bg-indigo-100 text-indigo-800 px-3 py-1.5 rounded font-semibold text-sm border border-indigo-200">
@@ -694,51 +1008,53 @@
                         <span id="modal-category-text"></span>
                     </div>
                 </div>
-                <button onclick="deleteItem()"
+                <button id="modal-delete-btn" onclick="deleteItem()"
                     class="mt-auto flex items-center gap-2 text-red-500 hover:text-red-700 text-sm font-medium transition-colors">
                     <span class="material-symbols-outlined text-[18px]">delete</span> Excluir item
                 </button>
             </div>
+            <!-- Main modal content -->
             <div class="flex-1 flex flex-col overflow-y-auto">
-                <div class="p-6 border-b border-border stripe-bg">
-                    <h1 id="modal-name" class="text-xl font-display font-bold text-text-main leading-tight"></h1>
+                <div class="p-4 md:p-6 border-b border-border stripe-bg">
+                    <h1 id="modal-name" class="text-lg md:text-xl font-display font-bold text-text-main leading-tight">
+                    </h1>
                     <p id="modal-sku" class="text-text-muted text-sm mt-1"></p>
                 </div>
-                <div class="p-6 flex flex-col gap-7 flex-1">
+                <div class="p-4 md:p-6 flex flex-col gap-5 md:gap-7 flex-1">
                     <div>
                         <label class="block text-xs font-bold text-text-main mb-3 uppercase tracking-wide">Status do
                             Estoque</label>
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-2 gap-2 md:gap-3">
                             <label class="cursor-pointer">
                                 <input type="radio" name="modal-status" value="ok" class="peer sr-only" />
                                 <div
-                                    class="flex flex-col items-center justify-center p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary hover:border-primary/50 h-full">
-                                    <span class="material-symbols-outlined mb-1">check_circle</span>
-                                    <span class="font-bold text-sm">Em Estoque</span>
+                                    class="flex flex-col items-center justify-center p-2.5 md:p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary hover:border-primary/50 h-full">
+                                    <span class="material-symbols-outlined mb-1 text-[20px]">check_circle</span>
+                                    <span class="font-bold text-xs md:text-sm">Em Estoque</span>
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="radio" name="modal-status" value="low" class="peer sr-only" />
                                 <div
-                                    class="flex flex-col items-center justify-center p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-amber-500 peer-checked:bg-amber-50 peer-checked:text-amber-600 hover:border-amber-300 h-full">
-                                    <span class="material-symbols-outlined mb-1">trending_down</span>
-                                    <span class="font-bold text-sm">Baixo Estoque</span>
+                                    class="flex flex-col items-center justify-center p-2.5 md:p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-amber-500 peer-checked:bg-amber-50 peer-checked:text-amber-600 hover:border-amber-300 h-full">
+                                    <span class="material-symbols-outlined mb-1 text-[20px]">trending_down</span>
+                                    <span class="font-bold text-xs md:text-sm">Baixo Estoque</span>
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="radio" name="modal-status" value="critical" class="peer sr-only" />
                                 <div
-                                    class="flex flex-col items-center justify-center p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-secondary peer-checked:bg-secondary/5 peer-checked:text-secondary hover:border-secondary/50 h-full">
-                                    <span class="material-symbols-outlined mb-1">warning</span>
-                                    <span class="font-bold text-sm">Crítico / Falta</span>
+                                    class="flex flex-col items-center justify-center p-2.5 md:p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-secondary peer-checked:bg-secondary/5 peer-checked:text-secondary hover:border-secondary/50 h-full">
+                                    <span class="material-symbols-outlined mb-1 text-[20px]">warning</span>
+                                    <span class="font-bold text-xs md:text-sm">Crítico / Falta</span>
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="radio" name="modal-status" value="na" class="peer sr-only" />
                                 <div
-                                    class="flex flex-col items-center justify-center p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-gray-400 peer-checked:bg-gray-100 h-full">
-                                    <span class="material-symbols-outlined mb-1">block</span>
-                                    <span class="font-bold text-sm">N/A</span>
+                                    class="flex flex-col items-center justify-center p-2.5 md:p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-gray-400 peer-checked:bg-gray-100 h-full">
+                                    <span class="material-symbols-outlined mb-1 text-[20px]">block</span>
+                                    <span class="font-bold text-xs md:text-sm">N/A</span>
                                 </div>
                             </label>
                         </div>
@@ -746,13 +1062,13 @@
                     <div>
                         <label class="block text-xs font-bold text-text-main mb-3 uppercase tracking-wide">Quantidade
                             Atual</label>
-                        <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-3 md:gap-4">
                             <button onclick="changeModalQty(-1)"
-                                class="w-12 h-12 flex items-center justify-center rounded bg-bg-light border border-border text-text-main hover:bg-white hover:border-primary hover:text-primary transition-all">
+                                class="w-11 md:w-12 h-11 md:h-12 flex items-center justify-center rounded bg-bg-light border border-border text-text-main hover:bg-white hover:border-primary hover:text-primary transition-all">
                                 <span class="material-symbols-outlined">remove</span>
                             </button>
                             <input id="modal-qty" type="number" value="0" min="0"
-                                class="w-24 h-12 text-center text-2xl font-bold border border-border rounded bg-white text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none" />
+                                class="w-20 md:w-24 h-11 md:h-12 text-center text-xl md:text-2xl font-bold border border-border rounded bg-white text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none" />
                             <span class="text-sm text-text-muted font-medium">unidades</span>
                         </div>
                     </div>
@@ -764,16 +1080,17 @@
                             class="w-full p-3 text-sm text-text-main border border-border rounded bg-bg-light focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none"></textarea>
                     </div>
                 </div>
-                <div class="p-6 bg-bg-light border-t border-border flex items-center justify-between gap-3">
+                <div class="p-4 md:p-6 bg-bg-light border-t border-border flex items-center justify-between gap-3">
                     <button onclick="editItemFull()"
                         class="flex items-center gap-2 text-sm text-text-muted hover:text-primary transition-colors">
-                        <span class="material-symbols-outlined text-[18px]">edit</span> Editar detalhes
+                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                        <span class="hidden sm:inline">Editar detalhes</span>
                     </button>
                     <div class="flex items-center gap-3">
                         <button onclick="closeModal()"
-                            class="px-5 py-2.5 text-sm font-bold text-text-muted hover:text-text-main hover:bg-white rounded-lg transition-colors">Cancelar</button>
+                            class="px-4 md:px-5 py-2.5 text-sm font-bold text-text-muted hover:text-text-main hover:bg-white rounded-lg transition-colors">Cancelar</button>
                         <button onclick="saveModalChanges()" id="modal-save-btn"
-                            class="flex items-center gap-2 px-6 py-2.5 bg-primary text-white text-sm font-bold uppercase tracking-wide rounded-lg hover:bg-primary-dark transition-all shadow-sm">
+                            class="flex items-center gap-2 px-5 md:px-6 py-2.5 bg-primary text-white text-sm font-bold uppercase tracking-wide rounded-lg hover:bg-primary-dark transition-all shadow-sm">
                             <span class="material-symbols-outlined text-[18px]">save</span> Salvar
                         </button>
                     </div>
@@ -788,6 +1105,7 @@
         <span id="toast-icon" class="material-symbols-outlined text-base"></span>
         <span id="toast-msg"></span>
     </div>
+
     <!-- ============================================================ -->
     <!-- JAVASCRIPT -->
     <!-- ============================================================ -->
@@ -846,11 +1164,11 @@
             document.getElementById('login-view').classList.remove('active');
             document.getElementById('app-view').classList.add('active');
             document.getElementById('user-email-display').textContent = isGuest ? '👁 Visitante' : user.email;
-            // Hide admin controls for guests
             document.querySelectorAll('.guest-hide').forEach(el => {
                 el.style.display = isGuest ? 'none' : '';
             });
             buildCategoryNav();
+            buildMobileCategoryPills();
             populateCategorySelect();
             loadItems();
             startRealtime();
@@ -915,6 +1233,51 @@
         });
 
         // ============================================================
+        // MOBILE SIDEBAR
+        // ============================================================
+        function toggleSidebar() {
+            const sidebar = document.getElementById('main-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+            document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+        }
+
+        function closeSidebar() {
+            document.getElementById('main-sidebar').classList.remove('open');
+            document.getElementById('sidebar-overlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // ============================================================
+        // MOBILE SEARCH
+        // ============================================================
+        function toggleMobileSearch() {
+            const bar = document.getElementById('mobile-search-bar');
+            const isHidden = bar.classList.contains('hidden');
+            bar.classList.toggle('hidden');
+            if (isHidden) {
+                setTimeout(() => document.getElementById('mobile-search-input').focus(), 50);
+            }
+        }
+
+        function closeMobileSearch() {
+            document.getElementById('mobile-search-bar').classList.add('hidden');
+            document.getElementById('mobile-search-input').value = '';
+            handleSearch('');
+        }
+
+        function syncSearchInputs(source) {
+            const mobileVal = document.getElementById('mobile-search-input').value;
+            const desktopVal = document.getElementById('search-input').value;
+            if (source === 'mobile') {
+                document.getElementById('search-input').value = mobileVal;
+            } else {
+                document.getElementById('mobile-search-input').value = desktopVal;
+            }
+        }
+
+        // ============================================================
         // DATA LOADING
         // ============================================================
         async function loadItems() {
@@ -927,13 +1290,12 @@
         }
 
         // ============================================================
-        // SEARCH — FIXED
+        // SEARCH
         // ============================================================
         function handleSearch(value) {
             currentSearch = value.trim();
             const clearBtn = document.getElementById('search-clear');
             clearBtn.classList.toggle('hidden', !currentSearch);
-            // Always go to inventory view when searching
             showView('inventory');
             renderItems();
         }
@@ -946,7 +1308,7 @@
         }
 
         // ============================================================
-        // RENDER ITEMS — with unit count badge
+        // RENDER ITEMS
         // ============================================================
         function renderItems() {
             let filtered = [...allItems];
@@ -968,9 +1330,8 @@
             const titleEl = document.getElementById('view-title');
             const subtitleEl = document.getElementById('view-subtitle');
 
-            titleEl.innerHTML = `<span class="material-symbols-outlined text-primary text-3xl">inventory_2</span> ${currentCategory === 'ALL' ? 'TODOS OS ITENS' : currentCategory}`;
+            titleEl.innerHTML = `<span class="material-symbols-outlined text-primary text-xl md:text-3xl">inventory_2</span> ${currentCategory === 'ALL' ? 'TODOS OS ITENS' : currentCategory}`;
 
-            // Show search context in subtitle
             if (currentSearch) {
                 subtitleEl.innerHTML = `<span class="text-primary font-semibold">${filtered.length}</span> resultado${filtered.length !== 1 ? 's' : ''} para "<span class="font-semibold">${currentSearch}</span>"`;
             } else {
@@ -989,11 +1350,11 @@
             grid.innerHTML = filtered.map(item => buildItemCard(item)).join('');
 
             const cols = { 5: 'xl:grid-cols-5', 4: 'xl:grid-cols-4', 3: 'xl:grid-cols-3', 2: 'xl:grid-cols-2' };
-            grid.className = `grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 ${cols[gridCols] || 'xl:grid-cols-5'} gap-5 pb-16`;
+            grid.className = `grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 ${cols[gridCols] || 'xl:grid-cols-5'} gap-3 md:gap-5 pb-16`;
         }
 
         // ============================================================
-        // ITEM CARD — shows unit count clearly
+        // ITEM CARD
         // ============================================================
         function buildItemCard(item) {
             const isLow = item.status === 'low';
@@ -1008,18 +1369,17 @@
 
             const qtyColor = isCritical ? 'text-secondary' : isLow ? 'text-amber-600' : 'text-text-main';
 
-            // Status badge
             let statusBadge = '';
             if (isCritical) {
-                statusBadge = `<span class="flex items-center gap-1 text-[10px] font-bold text-secondary uppercase bg-secondary/10 px-1.5 py-0.5 rounded border border-secondary/20">
+                statusBadge = `<span class="flex items-center gap-1 text-[9px] md:text-[10px] font-bold text-secondary uppercase bg-secondary/10 px-1.5 py-0.5 rounded border border-secondary/20">
                     <span class="size-1.5 rounded-full bg-secondary pulse inline-block"></span>Crítico</span>`;
             } else if (isLow) {
-                statusBadge = `<span class="flex items-center gap-1 text-[10px] font-bold text-amber-600 uppercase bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                statusBadge = `<span class="flex items-center gap-1 text-[9px] md:text-[10px] font-bold text-amber-600 uppercase bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                     <span class="size-1.5 rounded-full bg-amber-500 inline-block"></span>Baixo</span>`;
             } else if (isNA) {
-                statusBadge = `<span class="text-[10px] font-bold text-text-muted uppercase bg-gray-100 px-1.5 py-0.5 rounded">N/A</span>`;
+                statusBadge = `<span class="text-[9px] md:text-[10px] font-bold text-text-muted uppercase bg-gray-100 px-1.5 py-0.5 rounded">N/A</span>`;
             } else {
-                statusBadge = `<span class="flex items-center gap-1 text-[10px] font-bold text-primary uppercase bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+                statusBadge = `<span class="flex items-center gap-1 text-[9px] md:text-[10px] font-bold text-primary uppercase bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
                     <span class="size-1.5 rounded-full bg-primary inline-block"></span>OK</span>`;
             }
 
@@ -1028,31 +1388,30 @@
             const imgTag = item.image_url
                 ? `<img src="${item.image_url}" alt="${item.name}" class="max-h-full max-w-full object-contain mix-blend-multiply" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
                    <div class="hidden flex-col items-center text-text-muted"><span class="material-symbols-outlined text-3xl">image</span></div>`
-                : `<div class="flex flex-col items-center text-text-muted"><span class="material-symbols-outlined text-4xl">image_not_supported</span><span class="text-xs mt-1">Sem foto</span></div>`;
+                : `<div class="flex flex-col items-center text-text-muted"><span class="material-symbols-outlined text-3xl md:text-4xl">image_not_supported</span><span class="text-xs mt-1 hidden sm:block">Sem foto</span></div>`;
 
             return `
-    <div class="item-card group relative flex flex-col bg-white rounded-lg ${borderClass} shadow-sm hover:shadow-md overflow-hidden h-[320px] cursor-pointer" onclick="openModal('${item.id}')">
+    <div class="item-card group relative flex flex-col bg-white rounded-lg ${borderClass} shadow-sm hover:shadow-md overflow-hidden h-[260px] md:h-[320px] cursor-pointer" onclick="openModal('${item.id}')">
         <div class="h-1 w-full ${topBar} absolute top-0 left-0 z-10"></div>
-        <button onclick="event.stopPropagation(); openEditAdmin('${item.id}')" class="absolute top-4 right-4 z-20 bg-white/90 p-1.5 rounded-full text-text-muted hover:text-primary shadow-sm opacity-0 group-hover:opacity-100 transition-all">
-            <span class="material-symbols-outlined text-[16px]">edit</span>
+        <button onclick="event.stopPropagation(); openEditAdmin('${item.id}')" class="absolute top-3 right-3 z-20 bg-white/90 p-1.5 rounded-full text-text-muted hover:text-primary shadow-sm opacity-0 group-hover:opacity-100 transition-all">
+            <span class="material-symbols-outlined text-[14px] md:text-[16px]">edit</span>
         </button>
-        <div class="h-[52%] w-full bg-white flex items-center justify-center border-b border-border/50 p-4 pt-5">
+        <div class="item-img-section h-[48%] w-full bg-white flex items-center justify-center border-b border-border/50 p-3 pt-4">
             ${imgTag}
         </div>
-        <div class="flex-1 p-3 flex flex-col justify-between ${cardBg}">
+        <div class="flex-1 p-2.5 md:p-3 flex flex-col justify-between ${cardBg}">
             <div>
-                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold ${isCritical ? 'bg-secondary/10 text-secondary border border-secondary/20' : isLow ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-gray-100 text-text-muted'} uppercase tracking-wide mb-1">
-                    ${item.category.length > 15 ? item.category.substring(0, 15) + '...' : item.category}
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] md:text-[9px] font-bold ${isCritical ? 'bg-secondary/10 text-secondary border border-secondary/20' : isLow ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-gray-100 text-text-muted'} uppercase tracking-wide mb-1">
+                    ${item.category.length > 12 ? item.category.substring(0, 12) + '...' : item.category}
                 </span>
-                <h3 class="font-display font-bold text-sm leading-tight text-text-main line-clamp-2">${item.name}</h3>
+                <h3 class="font-display font-bold text-xs md:text-sm leading-tight text-text-main line-clamp-2">${item.name}</h3>
             </div>
-            <!-- UNIT COUNT — clearly visible -->
-            <div class="mt-2 flex items-end justify-between">
+            <div class="mt-1.5 md:mt-2 flex items-end justify-between">
                 <div class="flex flex-col">
-                    <span class="text-[10px] text-text-muted font-semibold uppercase tracking-wide">Unidades</span>
+                    <span class="text-[9px] md:text-[10px] text-text-muted font-semibold uppercase tracking-wide">Unidades</span>
                     <div class="flex items-baseline gap-1">
-                        <span class="font-display font-bold text-2xl leading-none ${qtyColor}">${item.quantity}</span>
-                        <span class="text-xs text-text-muted font-medium">un</span>
+                        <span class="font-display font-bold text-xl md:text-2xl leading-none ${qtyColor}">${item.quantity}</span>
+                        <span class="text-[10px] md:text-xs text-text-muted font-medium">un</span>
                     </div>
                 </div>
                 ${statusBadge}
@@ -1064,8 +1423,8 @@
         function showLoadingSkeletons() {
             const grid = document.getElementById('items-grid');
             grid.innerHTML = Array(8).fill(0).map(() => `
-        <div class="rounded-lg border border-border overflow-hidden h-[320px]">
-            <div class="skeleton h-[52%]"></div>
+        <div class="rounded-lg border border-border overflow-hidden h-[260px] md:h-[320px]">
+            <div class="skeleton h-[48%]"></div>
             <div class="p-3 flex flex-col gap-2">
                 <div class="skeleton h-3 w-16 rounded"></div>
                 <div class="skeleton h-4 w-full rounded"></div>
@@ -1081,12 +1440,20 @@
         function updateShortageCount() {
             const count = allItems.filter(i => i.status === 'low' || i.status === 'critical').length;
             const badge = document.getElementById('shortage-badge');
-            if (count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
-            else { badge.classList.add('hidden'); }
+            const badgeMobile = document.getElementById('shortage-badge-mobile');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+                badgeMobile.textContent = count;
+                badgeMobile.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+                badgeMobile.classList.add('hidden');
+            }
         }
 
         // ============================================================
-        // CATEGORY NAV
+        // CATEGORY NAV (sidebar)
         // ============================================================
         function buildCategoryNav() {
             const nav = document.getElementById('category-nav');
@@ -1094,17 +1461,58 @@
             const allBtn = document.createElement('button');
             allBtn.className = 'category-btn active flex items-center justify-between w-full px-3 py-2.5 rounded-lg transition-all text-white';
             allBtn.innerHTML = `<span class="font-display font-bold tracking-wide text-sm">TODOS</span>`;
-            allBtn.onclick = () => filterCategory('ALL', allBtn);
+            allBtn.onclick = () => { filterCategory('ALL', allBtn); closeSidebar(); };
             nav.appendChild(allBtn);
 
             CATEGORIES.forEach(cat => {
                 const btn = document.createElement('button');
                 btn.className = 'category-btn flex items-center justify-between w-full px-3 py-2.5 hover:bg-bg-light rounded-lg transition-all text-left';
                 btn.innerHTML = `<span class="font-display font-medium tracking-wide text-sm text-text-muted">${cat}</span>`;
-                btn.onclick = () => filterCategory(cat, btn);
+                btn.onclick = () => { filterCategory(cat, btn); closeSidebar(); };
                 btn.dataset.cat = cat;
                 nav.appendChild(btn);
             });
+        }
+
+        // ============================================================
+        // MOBILE CATEGORY PILLS
+        // ============================================================
+        function buildMobileCategoryPills() {
+            const container = document.getElementById('mobile-category-pills');
+            container.innerHTML = '';
+
+            const allPill = document.createElement('button');
+            allPill.className = 'cat-pill active';
+            allPill.textContent = 'TODOS';
+            allPill.dataset.cat = 'ALL';
+            allPill.onclick = () => filterCategoryPill('ALL');
+            container.appendChild(allPill);
+
+            CATEGORIES.forEach(cat => {
+                const pill = document.createElement('button');
+                pill.className = 'cat-pill';
+                pill.textContent = cat.length > 14 ? cat.substring(0, 14) + '…' : cat;
+                pill.dataset.cat = cat;
+                pill.onclick = () => filterCategoryPill(cat);
+                container.appendChild(pill);
+            });
+        }
+
+        function filterCategoryPill(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-pill').forEach(p => {
+                p.classList.toggle('active', p.dataset.cat === cat);
+            });
+            document.querySelectorAll('.category-btn').forEach(b => {
+                const isSame = b.dataset.cat === cat || (cat === 'ALL' && !b.dataset.cat);
+                b.classList.toggle('active', isSame);
+            });
+            document.getElementById('search-input').value = '';
+            document.getElementById('mobile-search-input').value = '';
+            currentSearch = '';
+            document.getElementById('search-clear').classList.add('hidden');
+            showView('inventory');
+            renderItems();
         }
 
         function filterCategory(cat, btn) {
@@ -1117,8 +1525,11 @@
                 if (span) { span.style.color = ''; }
             });
             btn.classList.add('active');
-            // Clear search when changing category
+            document.querySelectorAll('.cat-pill').forEach(p => {
+                p.classList.toggle('active', p.dataset.cat === cat || (cat === 'ALL' && p.dataset.cat === 'ALL'));
+            });
             document.getElementById('search-input').value = '';
+            document.getElementById('mobile-search-input').value = '';
             currentSearch = '';
             document.getElementById('search-clear').classList.add('hidden');
             showView('inventory');
@@ -1144,6 +1555,12 @@
             document.getElementById('view-shortage').style.display = view === 'shortage' ? 'block' : 'none';
             document.getElementById('view-admin').style.display = view === 'admin' ? 'block' : 'none';
             closeUserMenu();
+
+            ['inventory', 'shortage', 'admin'].forEach(v => {
+                const btn = document.getElementById(`nav-btn-${v}`);
+                if (btn) btn.classList.toggle('active-nav', v === view);
+            });
+
             if (view === 'shortage') renderShortageReport();
             if (view === 'inventory') renderItems();
         }
@@ -1377,9 +1794,9 @@
             const critical = shortages.filter(i => i.status === 'critical').length;
             const low = shortages.filter(i => i.status === 'low').length;
 
-            document.getElementById('shortage-count').innerHTML = `${shortages.length} <span class="text-sm text-text-muted font-body font-normal">itens</span>`;
-            document.getElementById('critical-count').innerHTML = `${critical} <span class="text-sm text-text-muted font-body font-normal">itens</span>`;
-            document.getElementById('low-count').innerHTML = `${low} <span class="text-sm text-text-muted font-body font-normal">itens</span>`;
+            document.getElementById('shortage-count').innerHTML = `${shortages.length} <span class="text-xs md:text-sm text-text-muted font-body font-normal">itens</span>`;
+            document.getElementById('critical-count').innerHTML = `${critical} <span class="text-xs md:text-sm text-text-muted font-body font-normal">itens</span>`;
+            document.getElementById('low-count').innerHTML = `${low} <span class="text-xs md:text-sm text-text-muted font-body font-normal">itens</span>`;
 
             const tbody = document.getElementById('shortage-tbody');
             const empty = document.getElementById('shortage-empty');
@@ -1394,25 +1811,25 @@
                     ? `<img src="${item.image_url}" alt="${item.name}" class="w-full h-full object-contain" onerror="this.style.display='none'"/>`
                     : `<span class="material-symbols-outlined text-text-muted">image</span>`;
                 const statusBadge = isCrit
-                    ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-secondary/10 border border-secondary/20 text-secondary text-xs font-bold uppercase"><span class="size-1.5 rounded-full bg-secondary animate-pulse inline-block"></span>Crítico</span>`
-                    : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-100 border border-amber-200 text-amber-700 text-xs font-bold uppercase"><span class="size-1.5 rounded-full bg-amber-500 inline-block"></span>Baixo</span>`;
+                    ? `<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-secondary/10 border border-secondary/20 text-secondary text-xs font-bold uppercase"><span class="size-1.5 rounded-full bg-secondary animate-pulse inline-block"></span>Crítico</span>`
+                    : `<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-amber-100 border border-amber-200 text-amber-700 text-xs font-bold uppercase"><span class="size-1.5 rounded-full bg-amber-500 inline-block"></span>Baixo</span>`;
                 const qtyColor = isCrit ? 'text-secondary' : 'text-amber-600';
 
                 return `<tr class="group ${rowBg} hover:bg-primary/5 transition-colors border-b border-border">
-            <td class="py-3 px-5"><div class="size-12 bg-white border border-border rounded p-1 flex items-center justify-center overflow-hidden">${img}</div></td>
-            <td class="py-3 px-5">
+            <td class="py-3 px-3 md:px-5"><div class="size-10 md:size-12 bg-white border border-border rounded p-1 flex items-center justify-center overflow-hidden">${img}</div></td>
+            <td class="py-3 px-3 md:px-5">
                 <div class="flex flex-col">
-                    <span class="font-bold text-base text-text-main group-hover:text-primary transition-colors">${item.name}</span>
-                    <span class="text-xs text-text-muted">SKU: ${item.sku || 'N/A'}</span>
-                    ${item.notes ? `<span class="text-xs text-text-muted italic mt-0.5">"${item.notes}"</span>` : ''}
+                    <span class="font-bold text-sm md:text-base text-text-main group-hover:text-primary transition-colors">${item.name}</span>
+                    <span class="text-xs text-text-muted hidden sm:block">SKU: ${item.sku || 'N/A'}</span>
+                    ${item.notes ? `<span class="text-xs text-text-muted italic mt-0.5 hidden md:block">"${item.notes}"</span>` : ''}
                 </div>
             </td>
-            <td class="py-3 px-5"><span class="inline-flex items-center px-2.5 py-1 rounded bg-bg-light border border-border text-xs font-bold text-text-muted uppercase">${item.category.length > 15 ? item.category.substring(0, 15) + '...' : item.category}</span></td>
-            <td class="py-3 px-5">${statusBadge}</td>
-            <td class="py-3 px-5 text-center"><span class="text-xl font-bold font-display ${qtyColor}">${item.quantity} <span class="text-xs font-normal text-text-muted">un</span></span></td>
-            <td class="py-3 px-5 text-right">
+            <td class="py-3 px-3 md:px-5 hidden sm:table-cell"><span class="inline-flex items-center px-2.5 py-1 rounded bg-bg-light border border-border text-xs font-bold text-text-muted uppercase">${item.category.length > 12 ? item.category.substring(0, 12) + '...' : item.category}</span></td>
+            <td class="py-3 px-3 md:px-5">${statusBadge}</td>
+            <td class="py-3 px-3 md:px-5 text-center"><span class="text-lg md:text-xl font-bold font-display ${qtyColor}">${item.quantity} <span class="text-xs font-normal text-text-muted">un</span></span></td>
+            <td class="py-3 px-3 md:px-5 text-right">
                 <button onclick="openEditAdmin('${item.id}')" class="text-text-muted hover:text-primary hover:bg-primary/10 p-2 rounded transition-colors" title="Editar">
-                    <span class="material-symbols-outlined">edit_square</span>
+                    <span class="material-symbols-outlined text-[18px] md:text-base">edit_square</span>
                 </button>
             </td>
         </tr>`;
