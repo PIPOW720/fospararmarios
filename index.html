@@ -497,7 +497,7 @@
                     </div>
                     <button id="login-btn" onclick="handleLogin()"
                         class="mt-1 flex w-full h-[52px] sm:h-[56px] items-center justify-center bg-primary hover:bg-primary-dark active:bg-primary-dark text-white font-display font-bold text-lg sm:text-xl uppercase tracking-wide rounded transition-all group">
-                        <span id="login-btn-text">Acessar Vitrine</span>
+                        <span id="login-btn-text">ENTRAR</span>
                         <span
                             class="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
@@ -1202,7 +1202,7 @@
             if (password.length < 6) { showLoginError('Senha deve ter no mínimo 6 caracteres.'); return; }
             const { error } = await db.auth.signUp({ email, password });
             if (error) { showLoginError(error.message); }
-            else { showToast('Conta criada! Verifique seu email para confirmar.', 'success'); showLoginError(''); }
+            else { showToast('E-mail de confirmação enviado!', 'success'); showLoginError(''); }
         }
 
         async function handleLogout() {
