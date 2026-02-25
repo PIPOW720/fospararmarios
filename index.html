@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Fospar Vitrine Digital</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Oswald:wght@400;600;700&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#04aea0",
+                        "primary-dark": "#038c81",
+                        secondary: "#A33D05",
+                        "bg-light": "#f5f8f8",
+                        "bg-dark": "#0f2321",
+                        surface: "#FFFFFF",
+                        border: "#DCE3E1",
+                        "text-main": "#1A201F",
+                        "text-muted": "#63706E",
+                    },
+                    fontFamily: {
+                        display: ["Oswald", "sans-serif"],
+                        body: ["Barlow", "sans-serif"],
+                        sans: ["Inter", "sans-serif"],
+                    },
+                },
+            },
+        }
+    </script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Barlow', sans-serif;
+            background: #f5f8f8;
+            color: #1A201F;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #DCE3E1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #04aea0;
+        }
+
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: flex;
+        }
+
+        .item-card {
+            transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+        }
+
+        .item-card:hover {
+            transform: translateY(-2px);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            transition: transform 0.3s ease;
+            z-index: 9999;
+            min-width: 280px;
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #item-modal {
+            display: none;
+        }
+
+        #item-modal.open {
+            display: flex;
+        }
+
+        #login-view,
+        #app-view {
+            display: none;
+        }
+
+        #login-view.active {
+            display: flex;
+        }
+
+        #app-view.active {
+            display: flex;
+        }
+
+        .category-btn.active {
+            background-color: #04aea0;
+            color: white;
+        }
+
+        .category-btn.active span {
+            color: white;
+        }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+
+        .material-symbols-outlined {
+            user-select: none;
+        }
+
+        .stripe-bg {
+            background-image: repeating-linear-gradient(-45deg,
+                    transparent, transparent 10px,
+                    rgba(4, 174, 160, 0.05) 10px, rgba(4, 174, 160, 0.05) 20px);
+        }
+        }
+    </style>
+</head>
+
+<body class="h-screen overflow-hidden">
+
+    <!-- ============================================================ -->
+    <!-- LOGIN VIEW -->
+    <!-- ============================================================ -->
+    <div id="login-view" class="min-h-screen w-full flex-row">
+        <div class="hidden lg:flex w-1/2 relative bg-bg-dark overflow-hidden">
+            <div class="absolute inset-0 opacity-30"
+                style="background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800'); background-size: cover; background-position: center; mix-blend-mode: overlay;">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-br from-bg-dark/95 via-bg-dark/70 to-primary/20"></div>
+            <div class="relative z-10 flex flex-col justify-between p-16 w-full h-full text-white">
+                <div>
+                    <div class="flex items-center gap-3 mb-8">
+                        <img src="logo-fospar.svg" alt="Fospar" class="h-10 w-auto brightness-0 invert" />
+                    </div>
+                    <h1 class="font-display text-6xl font-bold leading-tight tracking-tight max-w-lg mb-6">
+                        CONTROLE<br /><span class="text-primary">ARMARIO</span><br />TERMINAL.
+                    </h1>
+                    <p class="font-body text-lg text-gray-300 max-w-md leading-relaxed">
+                        Gerencie o Armario do Terminal o com precisão. Visibilidade total do estoque em tempo real.
+                    </p>
+                </div>
+                <div class="flex gap-8 border-t border-white/10 pt-8">
+                    <div>
+                        <p class="font-display text-3xl font-bold">10</p>
+                        <p class="text-sm text-gray-400 uppercase tracking-wider">Caixas</p>
+                    </div>
+                    <div>
+                        <p class="font-display text-3xl font-bold">100%</p>
+                        <p class="text-sm text-gray-400 uppercase tracking-wider">Visibilidade</p>
+                    </div>
+                    <div>
+                        <p class="font-display text-3xl font-bold">24/7</p>
+                        <p class="text-sm text-gray-400 uppercase tracking-wider">Acesso</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-1 flex-col justify-center items-center bg-white p-8 lg:p-24 relative">
+            <div class="lg:hidden absolute inset-0 opacity-5 pointer-events-none"
+                style="background-image: radial-gradient(#04aea0 1px, transparent 1px); background-size: 24px 24px;">
+            </div>
+            <div class="w-full max-w-[480px] z-10 flex flex-col">
+                <div class="mb-10 text-center lg:text-left">
+                    <div class="inline-flex lg:hidden items-center gap-2 mb-6 justify-center">
+                        <img src="logo-fospar.svg" alt="Fospar" class="h-8 w-auto" />
+                    </div>
+                    <h3 class="font-display text-4xl font-bold text-text-main mb-2">ACESSO RESTRITO</h3>
+                    <p class="font-body text-text-muted text-lg">Insira suas credenciais para acessar o inventário.</p>
+                </div>
+
+                <div id="login-error"
+                    class="hidden bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-base">error</span>
+                    <span id="login-error-msg"></span>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <div>
+                        <label
+                            class="block font-display font-bold text-sm uppercase tracking-wider text-text-main mb-2">E-mail</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <span class="material-symbols-outlined text-text-muted">mail</span>
+                            </div>
+                            <input id="login-email"
+                                class="block w-full pl-12 pr-4 h-[56px] bg-bg-light border border-border text-text-main text-lg placeholder:text-gray-400 focus:ring-2 focus:ring-primary focus:border-primary rounded outline-none"
+                                type="email" placeholder="nome@fospar.com.br" />
+                        </div>
+                    </div>
+                    <div>
+                        <label
+                            class="block font-display font-bold text-sm uppercase tracking-wider text-text-main mb-2">Senha</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <span class="material-symbols-outlined text-text-muted">lock</span>
+                            </div>
+                            <input id="login-password"
+                                class="block w-full pl-12 pr-12 h-[56px] bg-bg-light border border-border text-text-main text-lg placeholder:text-gray-400 focus:ring-2 focus:ring-primary focus:border-primary rounded outline-none"
+                                type="password" placeholder="••••••••" />
+                            <button onclick="togglePassword()"
+                                class="absolute inset-y-0 right-0 pr-4 flex items-center text-text-muted hover:text-primary">
+                                <span id="pw-icon" class="material-symbols-outlined">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+                    <button id="login-btn" onclick="handleLogin()"
+                        class="mt-2 flex w-full h-[56px] items-center justify-center bg-primary hover:bg-primary-dark text-white font-display font-bold text-xl uppercase tracking-wide rounded transition-all group">
+                        <span id="login-btn-text">Acessar Vitrine</span>
+                        <span
+                            class="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </button>
+                    <button onclick="handleGuestLogin()"
+                        class="flex w-full h-[48px] items-center justify-center gap-2 border-2 border-border hover:border-primary text-text-muted hover:text-primary font-display font-bold text-sm uppercase tracking-wide rounded transition-all group">
+                        <span class="material-symbols-outlined text-[18px]">visibility</span>
+                        Entrar como Visitante
+                    </button>
+                </div>
+
+                <div class="mt-10 pt-6 border-t border-dashed border-border flex flex-col gap-3">
+                    <button onclick="handleSignup()"
+                        class="text-sm text-text-muted hover:text-primary text-center underline decoration-dotted">
+                        Primeiro acesso? Criar conta
+                    </button>
+                    <div class="flex items-center justify-between text-sm text-text-muted">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px]">headset_mic</span>
+                            <span>Suporte TI Email: davi.perez@mosaicco.com</span>
+                        </div>
+                        <span>v1.0.0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- MAIN APP VIEW -->
+    <!-- ============================================================ -->
+    <div id="app-view" class="flex flex-col h-screen">
+        <!-- Header -->
+        <header
+            class="h-20 bg-white border-b border-border flex items-center justify-between px-6 flex-shrink-0 z-20 shadow-sm">
+            <div class="flex items-center">
+                <img src="logo-fospar.svg" alt="Fospar" class="h-10 w-auto" />
+            </div>
+            <!-- Search — fixed with oninput -->
+            <div class="hidden md:flex flex-1 max-w-[400px] mx-8">
+                <div class="relative w-full">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted">
+                        <span class="material-symbols-outlined text-[20px]">search</span>
+                    </div>
+                    <input id="search-input"
+                        class="block w-full pl-10 pr-3 py-2.5 border border-border rounded-lg bg-bg-light text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                        placeholder="Pesquisar item..." type="text" oninput="handleSearch(this.value)" />
+                    <button id="search-clear" onclick="clearSearch()"
+                        class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-text-muted hover:text-primary">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="showView('shortage')"
+                    class="flex items-center gap-2 text-secondary hover:text-red-700 font-bold text-sm uppercase tracking-wide transition-colors relative">
+                    <span class="material-symbols-outlined text-[20px]">warning</span>
+                    <span class="hidden md:inline">Falta</span>
+                    <span id="shortage-badge"
+                        class="hidden absolute -top-2 -right-2 bg-secondary text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center"></span>
+                </button>
+                <div class="h-8 w-[1px] bg-border"></div>
+                <div class="relative">
+                    <button onclick="toggleUserMenu()"
+                        class="flex items-center gap-2 hover:bg-bg-light p-2 rounded-lg transition-colors">
+                        <div
+                            class="size-9 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary">
+                            <span class="material-symbols-outlined text-primary text-[18px]">person</span>
+                        </div>
+                        <span id="user-email-display"
+                            class="text-sm text-text-muted hidden md:inline truncate max-w-[140px]"></span>
+                        <span class="material-symbols-outlined text-text-muted text-[18px]">expand_more</span>
+                    </button>
+                    <div id="user-menu"
+                        class="hidden absolute right-0 mt-2 w-48 bg-white border border-border rounded-lg shadow-lg overflow-hidden z-50">
+                        <button onclick="showView('admin')"
+                            class="guest-hide flex items-center gap-2 w-full px-4 py-3 text-sm text-text-main hover:bg-bg-light transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">add_box</span> Adicionar Item
+                        </button>
+                        <button onclick="showView('shortage')"
+                            class="flex items-center gap-2 w-full px-4 py-3 text-sm text-text-main hover:bg-bg-light transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">warning</span> Relatório de Falta
+                        </button>
+                        <div class="border-t border-border"></div>
+                        <button onclick="handleLogout()"
+                            class="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                            <span class="material-symbols-outlined text-[18px]">logout</span> Sair
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Sidebar -->
+            <aside class="w-[250px] bg-white border-r border-border flex flex-col flex-shrink-0 overflow-y-auto">
+                <div class="p-5">
+                    <h2 class="text-xs font-bold text-text-muted uppercase tracking-wider mb-3">Caixas</h2>
+                    <nav id="category-nav" class="flex flex-col gap-1"></nav>
+                </div>
+                <div class="mt-auto p-5 border-t border-border">
+                    <button onclick="showView('admin')"
+                        class="guest-hide flex items-center gap-2 w-full px-3 py-3 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-lg font-display font-bold uppercase text-sm tracking-wide transition-all group">
+                        <span class="material-symbols-outlined text-[18px]">add</span> Adicionar Item
+                    </button>
+                    <button onclick="showView('shortage')"
+                        class="flex items-center gap-2 w-full px-3 py-3 text-text-muted hover:bg-bg-light rounded-lg text-sm font-medium transition-colors mt-2">
+                        <span class="material-symbols-outlined text-[18px]">warning</span> Relatório de Falta
+                    </button>
+                    <button onclick="handleLogout()"
+                        class="flex items-center gap-2 w-full px-3 py-3 text-text-muted hover:text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors mt-1">
+                        <span class="material-symbols-outlined text-[18px]">logout</span> Sair
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main content -->
+            <main class="flex-1 overflow-y-auto relative">
+
+                <!-- INVENTORY VIEW -->
+                <div id="view-inventory" class="p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 id="view-title"
+                                class="font-display text-3xl font-bold text-text-main flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary text-3xl">inventory_2</span>
+                                TODOS OS ITENS
+                            </h2>
+                            <p id="view-subtitle" class="text-text-muted mt-1 text-sm"></p>
+                        </div>
+                        <div class="flex bg-white rounded-lg border border-border p-1 shadow-sm">
+                            <button onclick="setGridCols(4)" class="p-1.5 rounded text-primary bg-primary/10">
+                                <span class="material-symbols-outlined text-[20px]">grid_view</span>
+                            </button>
+                            <button onclick="setGridCols(2)" class="p-1.5 rounded text-text-muted hover:bg-gray-100">
+                                <span class="material-symbols-outlined text-[20px]">view_list</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="items-grid"
+                        class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 pb-16"></div>
+
+                    <div id="empty-state" class="hidden flex-col items-center justify-center py-24 text-center">
+                        <span class="material-symbols-outlined text-6xl text-text-muted mb-4">inventory_2</span>
+                        <p class="font-display text-2xl font-bold text-text-muted">Nenhum item encontrado</p>
+                        <p class="text-text-muted mt-2">Tente outra busca ou adicione itens ao estoque.</p>
+                        <button onclick="showView('admin')"
+                            class="mt-6 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:bg-primary-dark transition-colors">
+                            + Adicionar Item
+                        </button>
+                    </div>
+                </div>
+
+                <!-- SHORTAGE REPORT VIEW -->
+                <div id="view-shortage" class="hidden p-8">
+                    <div class="flex items-end justify-between mb-8">
+                        <div>
+                            <button onclick="showView('inventory')"
+                                class="flex items-center gap-1 text-sm text-text-muted hover:text-primary mb-3 transition-colors">
+                                <span class="material-symbols-outlined text-base">arrow_back</span> Voltar
+                            </button>
+                            <h2 class="font-display text-4xl font-bold text-text-main uppercase">Relatório de Falta</h2>
+                            <p class="text-text-muted mt-1">Itens com estoque baixo ou crítico para reposição.</p>
+                        </div>
+                        <button onclick="window.print()"
+                            class="flex items-center gap-2 px-5 py-2.5 bg-white border border-border rounded-lg text-sm font-bold hover:bg-bg-light transition-colors shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">print</span> Imprimir
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                        <div
+                            class="bg-white border-l-4 border-secondary p-5 rounded-lg shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">Total em
+                                    Falta</p>
+                                <p class="text-3xl font-display font-bold" id="shortage-count">0 <span
+                                        class="text-sm text-text-muted font-body font-normal">itens</span></p>
+                            </div>
+                            <span class="material-symbols-outlined text-secondary text-3xl">warning</span>
+                        </div>
+                        <div
+                            class="bg-white border-l-4 border-red-500 p-5 rounded-lg shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">Crítico
+                                    (Zerado)</p>
+                                <p class="text-3xl font-display font-bold" id="critical-count">0 <span
+                                        class="text-sm text-text-muted font-body font-normal">itens</span></p>
+                            </div>
+                            <span class="material-symbols-outlined text-red-500 text-3xl pulse">error</span>
+                        </div>
+                        <div
+                            class="bg-white border-l-4 border-amber-500 p-5 rounded-lg shadow-sm flex items-center justify-between">
+                            <div>
+                                <p class="text-text-muted text-xs font-bold uppercase tracking-wider mb-1">Baixo Estoque
+                                </p>
+                                <p class="text-3xl font-display font-bold" id="low-count">0 <span
+                                        class="text-sm text-text-muted font-body font-normal">itens</span></p>
+                            </div>
+                            <span class="material-symbols-outlined text-amber-500 text-3xl">trending_down</span>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-primary text-white font-display text-xs uppercase tracking-wider">
+                                    <tr>
+                                        <th class="py-4 px-5 w-20">Foto</th>
+                                        <th class="py-4 px-5">Item / SKU</th>
+                                        <th class="py-4 px-5 w-40">Caixa</th>
+                                        <th class="py-4 px-5 w-36">Status</th>
+                                        <th class="py-4 px-5 w-28 text-center">Qtd.</th>
+                                        <th class="py-4 px-5 w-24 text-right">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shortage-tbody" class="text-sm"></tbody>
+                            </table>
+                        </div>
+                        <div id="shortage-empty" class="hidden text-center py-16 text-text-muted">
+                            <span
+                                class="material-symbols-outlined text-5xl text-green-500 mb-3 block">check_circle</span>
+                            <p class="font-display text-xl font-bold text-green-700">Tudo em ordem!</p>
+                            <p class="mt-1">Nenhum item em falta ou com estoque crítico.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN VIEW -->
+                <div id="view-admin" class="hidden p-8">
+                    <button onclick="showView('inventory')"
+                        class="flex items-center gap-1 text-sm text-text-muted hover:text-primary mb-5 transition-colors">
+                        <span class="material-symbols-outlined text-base">arrow_back</span> Voltar ao Inventário
+                    </button>
+                    <div class="max-w-3xl mx-auto">
+                        <div class="mb-8">
+                            <h2 class="font-display text-4xl font-bold text-text-main uppercase" id="admin-form-title">
+                                Adicionar Item ao Estoque</h2>
+                            <p class="text-text-muted mt-1">Cadastre um novo produto no catálogo digital.</p>
+                        </div>
+                        <div class="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
+                            <div class="h-1.5 w-full bg-primary stripe-bg"></div>
+                            <div class="p-8">
+                                <input type="hidden" id="edit-item-id" />
+                                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                                    <div class="md:col-span-4">
+                                        <label
+                                            class="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">Imagem
+                                            do Produto</label>
+                                        <div class="relative group cursor-pointer"
+                                            onclick="document.getElementById('img-upload').click()">
+                                            <div id="img-preview-container"
+                                                class="aspect-square w-full rounded border-2 border-dashed border-border bg-bg-light hover:border-primary hover:bg-primary/5 transition-all flex flex-col items-center justify-center text-center p-6 overflow-hidden">
+                                                <img id="img-preview" src="" alt=""
+                                                    class="hidden w-full h-full object-contain absolute inset-0" />
+                                                <div id="img-upload-placeholder" class="flex flex-col items-center">
+                                                    <span
+                                                        class="material-symbols-outlined text-4xl text-primary mb-2">cloud_upload</span>
+                                                    <p class="text-sm font-medium text-text-main">Clique para upload</p>
+                                                    <p class="text-xs text-text-muted mt-1">PNG, JPG até 5MB</p>
+                                                </div>
+                                            </div>
+                                            <input id="img-upload" type="file" accept="image/*" class="hidden"
+                                                onchange="previewImage(event)" />
+                                        </div>
+                                        <button id="remove-img-btn" onclick="removeImage()"
+                                            class="hidden mt-2 text-xs text-red-500 hover:text-red-700 flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-sm">delete</span> Remover imagem
+                                        </button>
+                                        <div class="mt-3">
+                                            <label class="block text-xs text-text-muted mb-1">Ou cole uma URL de
+                                                imagem:</label>
+                                            <input id="img-url-input" type="url" placeholder="https://..."
+                                                class="w-full h-9 px-3 text-sm border border-border rounded bg-bg-light focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                                                onchange="previewImageUrl(this.value)" />
+                                        </div>
+                                    </div>
+                                    <div class="md:col-span-8 flex flex-col gap-5">
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5">Nome
+                                                do Item *</label>
+                                            <input id="f-name" type="text" placeholder="Ex: Caneta Bic Azul 1.0mm"
+                                                class="w-full h-11 px-3 border border-border rounded bg-bg-light focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm" />
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label
+                                                    class="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5">Categoria
+                                                    / Caixa *</label>
+                                                <div class="relative">
+                                                    <select id="f-category"
+                                                        class="w-full h-11 px-3 border border-border rounded bg-bg-light focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm appearance-none cursor-pointer">
+                                                        <option value="" disabled selected>Selecione...</option>
+                                                    </select>
+                                                    <span
+                                                        class="material-symbols-outlined absolute right-3 top-2.5 text-text-muted pointer-events-none">expand_more</span>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label
+                                                    class="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5">Quantidade
+                                                    Atual</label>
+                                                <div
+                                                    class="flex items-center h-11 border border-border rounded bg-bg-light overflow-hidden">
+                                                    <button type="button" onclick="changeQty(-1)"
+                                                        class="px-3 h-full hover:bg-white flex items-center text-text-muted hover:text-text-main transition-colors">
+                                                        <span class="material-symbols-outlined text-sm">remove</span>
+                                                    </button>
+                                                    <input id="f-quantity" type="number" value="0" min="0"
+                                                        class="flex-1 text-center h-full border-0 bg-transparent font-bold text-text-main focus:ring-0 outline-none text-sm" />
+                                                    <button type="button" onclick="changeQty(1)"
+                                                        class="px-3 h-full hover:bg-white flex items-center text-text-muted hover:text-text-main transition-colors">
+                                                        <span class="material-symbols-outlined text-sm">add</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold uppercase tracking-wider text-text-muted mb-2">Status
+                                                do Estoque</label>
+                                            <div class="flex gap-3">
+                                                <label class="flex-1 cursor-pointer">
+                                                    <input type="radio" name="f-status" value="ok" class="peer sr-only"
+                                                        checked />
+                                                    <div
+                                                        class="p-3 rounded border border-border bg-bg-light peer-checked:border-primary peer-checked:bg-primary/5 flex items-center gap-2 transition-all">
+                                                        <span
+                                                            class="material-symbols-outlined text-sm text-text-muted peer-checked:text-primary">check_circle</span>
+                                                        <span class="text-sm font-bold">Em Estoque</span>
+                                                    </div>
+                                                </label>
+                                                <label class="flex-1 cursor-pointer">
+                                                    <input type="radio" name="f-status" value="low"
+                                                        class="peer sr-only" />
+                                                    <div
+                                                        class="p-3 rounded border border-border bg-bg-light peer-checked:border-amber-500 peer-checked:bg-amber-50 flex items-center gap-2 transition-all">
+                                                        <span
+                                                            class="material-symbols-outlined text-sm text-text-muted">trending_down</span>
+                                                        <span class="text-sm font-bold">Baixo</span>
+                                                    </div>
+                                                </label>
+                                                <label class="flex-1 cursor-pointer">
+                                                    <input type="radio" name="f-status" value="critical"
+                                                        class="peer sr-only" />
+                                                    <div
+                                                        class="p-3 rounded border border-border bg-bg-light peer-checked:border-secondary peer-checked:bg-secondary/5 flex items-center gap-2 transition-all">
+                                                        <span
+                                                            class="material-symbols-outlined text-sm text-text-muted">warning</span>
+                                                        <span class="text-sm font-bold">Crítico</span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5">Observações
+                                                (opcional)</label>
+                                            <textarea id="f-notes" rows="3"
+                                                placeholder="Ex: Comprar apenas ponta fina, marca BIC..."
+                                                class="w-full p-3 text-sm border border-border rounded bg-bg-light focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-border">
+                                    <button onclick="resetForm(); showView('inventory')"
+                                        class="px-6 py-2.5 text-sm font-bold text-text-muted hover:text-text-main hover:bg-bg-light rounded-lg transition-colors">Cancelar</button>
+                                    <button onclick="saveItem()" id="save-btn"
+                                        class="flex items-center gap-2 px-8 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-bold uppercase tracking-wide rounded-lg transition-all shadow-sm">
+                                        <span class="material-symbols-outlined text-[18px]">save</span>
+                                        <span id="save-btn-text">Salvar Item</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- ITEM DETAIL MODAL -->
+    <!-- ============================================================ -->
+    <div id="item-modal" class="fixed inset-0 bg-bg-dark/60 backdrop-blur-sm z-50 items-center justify-center p-4">
+        <div
+            class="bg-white w-full max-w-[780px] rounded-lg shadow-2xl border border-border flex flex-col md:flex-row overflow-hidden relative max-h-[90vh]">
+            <button onclick="closeModal()"
+                class="absolute top-4 right-4 text-text-muted hover:text-primary z-10 bg-white/90 rounded-full p-1">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div
+                class="w-full md:w-[300px] bg-bg-light border-b md:border-b-0 md:border-r border-border p-6 flex flex-col gap-5 flex-shrink-0">
+                <div
+                    class="relative aspect-square bg-white rounded border border-border flex items-center justify-center p-4 overflow-hidden">
+                    <img id="modal-img" src="" alt="" class="max-w-full max-h-full object-contain mix-blend-multiply" />
+                    <div id="modal-img-placeholder" class="hidden flex-col items-center text-text-muted">
+                        <span class="material-symbols-outlined text-4xl">image</span>
+                        <p class="text-xs mt-1">Sem imagem</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-3 bg-white border border-border rounded text-sm text-text-muted">
+                    <span class="material-symbols-outlined text-primary flex-shrink-0 text-[20px]">history</span>
+                    <div>
+                        <span class="font-medium text-text-main block">Última atualização</span>
+                        <span id="modal-updated" class="text-xs"></span>
+                    </div>
+                </div>
+                <div>
+                    <div class="text-xs font-bold text-text-muted uppercase tracking-wider mb-1">Localização</div>
+                    <div id="modal-category-badge"
+                        class="inline-flex items-center gap-2 bg-indigo-100 text-indigo-800 px-3 py-1.5 rounded font-semibold text-sm border border-indigo-200">
+                        <span class="material-symbols-outlined text-[18px]">inventory_2</span>
+                        <span id="modal-category-text"></span>
+                    </div>
+                </div>
+                <button onclick="deleteItem()"
+                    class="mt-auto flex items-center gap-2 text-red-500 hover:text-red-700 text-sm font-medium transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">delete</span> Excluir item
+                </button>
+            </div>
+            <div class="flex-1 flex flex-col overflow-y-auto">
+                <div class="p-6 border-b border-border stripe-bg">
+                    <h1 id="modal-name" class="text-xl font-display font-bold text-text-main leading-tight"></h1>
+                    <p id="modal-sku" class="text-text-muted text-sm mt-1"></p>
+                </div>
+                <div class="p-6 flex flex-col gap-7 flex-1">
+                    <div>
+                        <label class="block text-xs font-bold text-text-main mb-3 uppercase tracking-wide">Status do
+                            Estoque</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="modal-status" value="ok" class="peer sr-only" />
+                                <div
+                                    class="flex flex-col items-center justify-center p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary hover:border-primary/50 h-full">
+                                    <span class="material-symbols-outlined mb-1">check_circle</span>
+                                    <span class="font-bold text-sm">Em Estoque</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="modal-status" value="low" class="peer sr-only" />
+                                <div
+                                    class="flex flex-col items-center justify-center p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-amber-500 peer-checked:bg-amber-50 peer-checked:text-amber-600 hover:border-amber-300 h-full">
+                                    <span class="material-symbols-outlined mb-1">trending_down</span>
+                                    <span class="font-bold text-sm">Baixo Estoque</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="modal-status" value="critical" class="peer sr-only" />
+                                <div
+                                    class="flex flex-col items-center justify-center p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-secondary peer-checked:bg-secondary/5 peer-checked:text-secondary hover:border-secondary/50 h-full">
+                                    <span class="material-symbols-outlined mb-1">warning</span>
+                                    <span class="font-bold text-sm">Crítico / Falta</span>
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="modal-status" value="na" class="peer sr-only" />
+                                <div
+                                    class="flex flex-col items-center justify-center p-3 rounded border border-border bg-bg-light text-text-muted transition-all peer-checked:border-gray-400 peer-checked:bg-gray-100 h-full">
+                                    <span class="material-symbols-outlined mb-1">block</span>
+                                    <span class="font-bold text-sm">N/A</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-text-main mb-3 uppercase tracking-wide">Quantidade
+                            Atual</label>
+                        <div class="flex items-center gap-4">
+                            <button onclick="changeModalQty(-1)"
+                                class="w-12 h-12 flex items-center justify-center rounded bg-bg-light border border-border text-text-main hover:bg-white hover:border-primary hover:text-primary transition-all">
+                                <span class="material-symbols-outlined">remove</span>
+                            </button>
+                            <input id="modal-qty" type="number" value="0" min="0"
+                                class="w-24 h-12 text-center text-2xl font-bold border border-border rounded bg-white text-text-main focus:border-primary focus:ring-1 focus:ring-primary outline-none" />
+                            <span class="text-sm text-text-muted font-medium">unidades</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs font-bold text-text-main mb-2 uppercase tracking-wide">Observações</label>
+                        <textarea id="modal-notes" rows="3"
+                            placeholder="Ex: Comprar apenas ponta fina, marca específica..."
+                            class="w-full p-3 text-sm text-text-main border border-border rounded bg-bg-light focus:border-primary focus:ring-1 focus:ring-primary outline-none resize-none"></textarea>
+                    </div>
+                </div>
+                <div class="p-6 bg-bg-light border-t border-border flex items-center justify-between gap-3">
+                    <button onclick="editItemFull()"
+                        class="flex items-center gap-2 text-sm text-text-muted hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">edit</span> Editar detalhes
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <button onclick="closeModal()"
+                            class="px-5 py-2.5 text-sm font-bold text-text-muted hover:text-text-main hover:bg-white rounded-lg transition-colors">Cancelar</button>
+                        <button onclick="saveModalChanges()" id="modal-save-btn"
+                            class="flex items-center gap-2 px-6 py-2.5 bg-primary text-white text-sm font-bold uppercase tracking-wide rounded-lg hover:bg-primary-dark transition-all shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">save</span> Salvar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast"
+        class="px-5 py-3 bg-text-main text-white text-sm font-medium rounded-lg shadow-xl flex items-center gap-3">
+        <span id="toast-icon" class="material-symbols-outlined text-base"></span>
+        <span id="toast-msg"></span>
+    </div>
+    <!-- ============================================================ -->
+    <!-- JAVASCRIPT -->
+    <!-- ============================================================ -->
+    <script>
+        // ============================================================
+        // CONFIG & INIT
+        // ============================================================
+        const CATEGORIES = [
+            'CABOS', 'DECORAÇÕES', 'TABLETS',
+            'RADIOS. CONTROLES. BATERIAS.',
+            'EQUIP. MEDIÇÃO',
+            'FECHADURA. TRINCOS. CADEADOS.',
+            'ESCRITORIO', 'EPI', 'FITAS', 'PLASTIFICAÇÃO'
+        ];
+
+        let db = null;
+        let allItems = [];
+        let currentCategory = 'ALL';
+        let currentSearch = '';
+        let currentEditItem = null;
+        let gridCols = 5;
+
+        const SUPABASE_URL = 'https://qujooelqczwmevvwzvkd.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF1am9vZWxxY3p3bWV2dnd6dmtkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE4NjkwOTMsImV4cCI6MjA4NzQ0NTA5M30.8eETr87nyTTypEyXVGhxWTuIpbvJo6xPjBdts3e5bzY';
+
+        function loadConfig() {
+            try {
+                db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                initAuth();
+            } catch (e) {
+                document.body.innerHTML = '<div style="display:flex;height:100vh;align-items:center;justify-content:center;font-family:sans-serif;background:#0f2321;color:white;flex-direction:column;gap:16px"><h2>Erro de conexão</h2><p>' + e.message + '</p></div>';
+            }
+        }
+
+        // ============================================================
+        // AUTH
+        // ============================================================
+        async function initAuth() {
+            const { data: { session } } = await db.auth.getSession();
+            if (session) { showApp(session.user); } else { showLoginView(); }
+            db.auth.onAuthStateChange((event, session) => {
+                if (event === 'SIGNED_IN') showApp(session.user);
+                if (event === 'SIGNED_OUT') showLoginView();
+            });
+        }
+
+        function showLoginView() {
+            document.getElementById('login-view').classList.add('active');
+            document.getElementById('app-view').classList.remove('active');
+        }
+
+        let isGuest = false;
+
+        function showApp(user) {
+            isGuest = user.isGuest || false;
+            document.getElementById('login-view').classList.remove('active');
+            document.getElementById('app-view').classList.add('active');
+            document.getElementById('user-email-display').textContent = isGuest ? '👁 Visitante' : user.email;
+            // Hide admin controls for guests
+            document.querySelectorAll('.guest-hide').forEach(el => {
+                el.style.display = isGuest ? 'none' : '';
+            });
+            buildCategoryNav();
+            populateCategorySelect();
+            loadItems();
+            startRealtime();
+        }
+
+        function startRealtime() {
+            db.channel('items-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'items' }, () => { loadItems(); })
+                .subscribe();
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            if (!email || !password) { showLoginError('Preencha email e senha.'); return; }
+            const btn = document.getElementById('login-btn');
+            document.getElementById('login-btn-text').textContent = 'Entrando...';
+            btn.disabled = true;
+            const { error } = await db.auth.signInWithPassword({ email, password });
+            if (error) {
+                showLoginError('Email ou senha incorretos.');
+                document.getElementById('login-btn-text').textContent = 'Acessar Vitrine';
+                btn.disabled = false;
+            }
+        }
+
+        async function handleSignup() {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            if (!email || !password) { showLoginError('Preencha email e senha para criar conta.'); return; }
+            if (password.length < 6) { showLoginError('Senha deve ter no mínimo 6 caracteres.'); return; }
+            const { error } = await db.auth.signUp({ email, password });
+            if (error) { showLoginError(error.message); }
+            else { showToast('Conta criada! Verifique seu email para confirmar.', 'success'); showLoginError(''); }
+        }
+
+        async function handleLogout() {
+            await db.auth.signOut();
+            closeUserMenu();
+        }
+
+        function handleGuestLogin() {
+            showApp({ email: 'visitante@fospar.com.br', isGuest: true });
+        }
+
+        function showLoginError(msg) {
+            const el = document.getElementById('login-error');
+            const msgEl = document.getElementById('login-error-msg');
+            if (msg) { el.classList.remove('hidden'); msgEl.textContent = msg; }
+            else { el.classList.add('hidden'); }
+        }
+
+        function togglePassword() {
+            const input = document.getElementById('login-password');
+            const icon = document.getElementById('pw-icon');
+            input.type = input.type === 'password' ? 'text' : 'password';
+            icon.textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
+        }
+
+        document.getElementById('login-password').addEventListener('keydown', e => {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        // ============================================================
+        // DATA LOADING
+        // ============================================================
+        async function loadItems() {
+            showLoadingSkeletons();
+            const { data, error } = await db.from('items').select('*').order('name');
+            if (error) { showToast('Erro ao carregar itens: ' + error.message, 'error'); return; }
+            allItems = data || [];
+            renderItems();
+            updateShortageCount();
+        }
+
+        // ============================================================
+        // SEARCH — FIXED
+        // ============================================================
+        function handleSearch(value) {
+            currentSearch = value.trim();
+            const clearBtn = document.getElementById('search-clear');
+            clearBtn.classList.toggle('hidden', !currentSearch);
+            // Always go to inventory view when searching
+            showView('inventory');
+            renderItems();
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('search-input');
+            input.value = '';
+            handleSearch('');
+            input.focus();
+        }
+
+        // ============================================================
+        // RENDER ITEMS — with unit count badge
+        // ============================================================
+        function renderItems() {
+            let filtered = [...allItems];
+            if (currentCategory !== 'ALL') {
+                filtered = filtered.filter(i => i.category === currentCategory);
+            }
+            if (currentSearch) {
+                const q = currentSearch.toLowerCase();
+                filtered = filtered.filter(i =>
+                    i.name.toLowerCase().includes(q) ||
+                    (i.sku && i.sku.toLowerCase().includes(q)) ||
+                    (i.category && i.category.toLowerCase().includes(q)) ||
+                    (i.notes && i.notes.toLowerCase().includes(q))
+                );
+            }
+
+            const grid = document.getElementById('items-grid');
+            const empty = document.getElementById('empty-state');
+            const titleEl = document.getElementById('view-title');
+            const subtitleEl = document.getElementById('view-subtitle');
+
+            titleEl.innerHTML = `<span class="material-symbols-outlined text-primary text-3xl">inventory_2</span> ${currentCategory === 'ALL' ? 'TODOS OS ITENS' : currentCategory}`;
+
+            // Show search context in subtitle
+            if (currentSearch) {
+                subtitleEl.innerHTML = `<span class="text-primary font-semibold">${filtered.length}</span> resultado${filtered.length !== 1 ? 's' : ''} para "<span class="font-semibold">${currentSearch}</span>"`;
+            } else {
+                subtitleEl.textContent = `${filtered.length} ${filtered.length === 1 ? 'item' : 'itens'} encontrado${filtered.length === 1 ? '' : 's'}`;
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                empty.style.display = 'flex';
+                return;
+            }
+            empty.classList.add('hidden');
+            empty.style.display = 'none';
+
+            grid.innerHTML = filtered.map(item => buildItemCard(item)).join('');
+
+            const cols = { 5: 'xl:grid-cols-5', 4: 'xl:grid-cols-4', 3: 'xl:grid-cols-3', 2: 'xl:grid-cols-2' };
+            grid.className = `grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 ${cols[gridCols] || 'xl:grid-cols-5'} gap-5 pb-16`;
+        }
+
+        // ============================================================
+        // ITEM CARD — shows unit count clearly
+        // ============================================================
+        function buildItemCard(item) {
+            const isLow = item.status === 'low';
+            const isCritical = item.status === 'critical';
+            const isNA = item.status === 'na';
+
+            const borderClass = isCritical ? 'border-2 border-secondary/30 hover:border-secondary' :
+                isLow ? 'border-2 border-amber-300/60 hover:border-amber-500' :
+                    'border border-border hover:border-primary/50';
+            const topBar = isCritical ? 'bg-secondary h-1.5' :
+                isLow ? 'bg-amber-500 h-1' : 'bg-primary h-1';
+
+            const qtyColor = isCritical ? 'text-secondary' : isLow ? 'text-amber-600' : 'text-text-main';
+
+            // Status badge
+            let statusBadge = '';
+            if (isCritical) {
+                statusBadge = `<span class="flex items-center gap-1 text-[10px] font-bold text-secondary uppercase bg-secondary/10 px-1.5 py-0.5 rounded border border-secondary/20">
+                    <span class="size-1.5 rounded-full bg-secondary pulse inline-block"></span>Crítico</span>`;
+            } else if (isLow) {
+                statusBadge = `<span class="flex items-center gap-1 text-[10px] font-bold text-amber-600 uppercase bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                    <span class="size-1.5 rounded-full bg-amber-500 inline-block"></span>Baixo</span>`;
+            } else if (isNA) {
+                statusBadge = `<span class="text-[10px] font-bold text-text-muted uppercase bg-gray-100 px-1.5 py-0.5 rounded">N/A</span>`;
+            } else {
+                statusBadge = `<span class="flex items-center gap-1 text-[10px] font-bold text-primary uppercase bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
+                    <span class="size-1.5 rounded-full bg-primary inline-block"></span>OK</span>`;
+            }
+
+            const cardBg = isCritical ? 'bg-secondary/5' : isLow ? 'bg-amber-50/50' : '';
+
+            const imgTag = item.image_url
+                ? `<img src="${item.image_url}" alt="${item.name}" class="max-h-full max-w-full object-contain mix-blend-multiply" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"/>
+                   <div class="hidden flex-col items-center text-text-muted"><span class="material-symbols-outlined text-3xl">image</span></div>`
+                : `<div class="flex flex-col items-center text-text-muted"><span class="material-symbols-outlined text-4xl">image_not_supported</span><span class="text-xs mt-1">Sem foto</span></div>`;
+
+            return `
+    <div class="item-card group relative flex flex-col bg-white rounded-lg ${borderClass} shadow-sm hover:shadow-md overflow-hidden h-[320px] cursor-pointer" onclick="openModal('${item.id}')">
+        <div class="h-1 w-full ${topBar} absolute top-0 left-0 z-10"></div>
+        <button onclick="event.stopPropagation(); openEditAdmin('${item.id}')" class="absolute top-4 right-4 z-20 bg-white/90 p-1.5 rounded-full text-text-muted hover:text-primary shadow-sm opacity-0 group-hover:opacity-100 transition-all">
+            <span class="material-symbols-outlined text-[16px]">edit</span>
+        </button>
+        <div class="h-[52%] w-full bg-white flex items-center justify-center border-b border-border/50 p-4 pt-5">
+            ${imgTag}
+        </div>
+        <div class="flex-1 p-3 flex flex-col justify-between ${cardBg}">
+            <div>
+                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold ${isCritical ? 'bg-secondary/10 text-secondary border border-secondary/20' : isLow ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-gray-100 text-text-muted'} uppercase tracking-wide mb-1">
+                    ${item.category.length > 15 ? item.category.substring(0, 15) + '...' : item.category}
+                </span>
+                <h3 class="font-display font-bold text-sm leading-tight text-text-main line-clamp-2">${item.name}</h3>
+            </div>
+            <!-- UNIT COUNT — clearly visible -->
+            <div class="mt-2 flex items-end justify-between">
+                <div class="flex flex-col">
+                    <span class="text-[10px] text-text-muted font-semibold uppercase tracking-wide">Unidades</span>
+                    <div class="flex items-baseline gap-1">
+                        <span class="font-display font-bold text-2xl leading-none ${qtyColor}">${item.quantity}</span>
+                        <span class="text-xs text-text-muted font-medium">un</span>
+                    </div>
+                </div>
+                ${statusBadge}
+            </div>
+        </div>
+    </div>`;
+        }
+
+        function showLoadingSkeletons() {
+            const grid = document.getElementById('items-grid');
+            grid.innerHTML = Array(8).fill(0).map(() => `
+        <div class="rounded-lg border border-border overflow-hidden h-[320px]">
+            <div class="skeleton h-[52%]"></div>
+            <div class="p-3 flex flex-col gap-2">
+                <div class="skeleton h-3 w-16 rounded"></div>
+                <div class="skeleton h-4 w-full rounded"></div>
+                <div class="skeleton h-3 w-3/4 rounded"></div>
+                <div class="flex justify-between items-end mt-2">
+                    <div class="skeleton h-7 w-12 rounded"></div>
+                    <div class="skeleton h-5 w-16 rounded-full"></div>
+                </div>
+            </div>
+        </div>`).join('');
+        }
+
+        function updateShortageCount() {
+            const count = allItems.filter(i => i.status === 'low' || i.status === 'critical').length;
+            const badge = document.getElementById('shortage-badge');
+            if (count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
+            else { badge.classList.add('hidden'); }
+        }
+
+        // ============================================================
+        // CATEGORY NAV
+        // ============================================================
+        function buildCategoryNav() {
+            const nav = document.getElementById('category-nav');
+            nav.innerHTML = '';
+            const allBtn = document.createElement('button');
+            allBtn.className = 'category-btn active flex items-center justify-between w-full px-3 py-2.5 rounded-lg transition-all text-white';
+            allBtn.innerHTML = `<span class="font-display font-bold tracking-wide text-sm">TODOS</span>`;
+            allBtn.onclick = () => filterCategory('ALL', allBtn);
+            nav.appendChild(allBtn);
+
+            CATEGORIES.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = 'category-btn flex items-center justify-between w-full px-3 py-2.5 hover:bg-bg-light rounded-lg transition-all text-left';
+                btn.innerHTML = `<span class="font-display font-medium tracking-wide text-sm text-text-muted">${cat}</span>`;
+                btn.onclick = () => filterCategory(cat, btn);
+                btn.dataset.cat = cat;
+                nav.appendChild(btn);
+            });
+        }
+
+        function filterCategory(cat, btn) {
+            currentCategory = cat;
+            document.querySelectorAll('.category-btn').forEach(b => {
+                b.classList.remove('active', 'bg-primary', 'text-white');
+                b.style.backgroundColor = '';
+                b.style.color = '';
+                const span = b.querySelector('span');
+                if (span) { span.style.color = ''; }
+            });
+            btn.classList.add('active');
+            // Clear search when changing category
+            document.getElementById('search-input').value = '';
+            currentSearch = '';
+            document.getElementById('search-clear').classList.add('hidden');
+            showView('inventory');
+            renderItems();
+        }
+
+        function populateCategorySelect() {
+            const sel = document.getElementById('f-category');
+            sel.innerHTML = '<option value="" disabled selected>Selecione...</option>';
+            CATEGORIES.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                sel.appendChild(opt);
+            });
+        }
+
+        // ============================================================
+        // VIEWS
+        // ============================================================
+        function showView(view) {
+            document.getElementById('view-inventory').style.display = view === 'inventory' ? 'block' : 'none';
+            document.getElementById('view-shortage').style.display = view === 'shortage' ? 'block' : 'none';
+            document.getElementById('view-admin').style.display = view === 'admin' ? 'block' : 'none';
+            closeUserMenu();
+            if (view === 'shortage') renderShortageReport();
+            if (view === 'inventory') renderItems();
+        }
+
+        function setGridCols(n) {
+            gridCols = n;
+            renderItems();
+        }
+
+        // ============================================================
+        // ITEM MODAL
+        // ============================================================
+        let modalItemId = null;
+
+        function openModal(id) {
+            const item = allItems.find(i => i.id === id);
+            if (!item) return;
+            modalItemId = id;
+
+            document.getElementById('modal-name').textContent = item.name;
+            document.getElementById('modal-sku').textContent = `SKU: ${item.sku || 'N/A'}`;
+            document.getElementById('modal-category-text').textContent = `CAIXA: ${item.category}`;
+            document.getElementById('modal-qty').value = item.quantity;
+            document.getElementById('modal-notes').value = item.notes || '';
+
+            const img = document.getElementById('modal-img');
+            const placeholder = document.getElementById('modal-img-placeholder');
+            if (item.image_url) {
+                img.src = item.image_url;
+                img.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                img.classList.add('hidden');
+                placeholder.style.display = 'flex';
+                placeholder.classList.remove('hidden');
+            }
+
+            const updated = new Date(item.updated_at);
+            document.getElementById('modal-updated').textContent = updated.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            const radios = document.querySelectorAll('input[name="modal-status"]');
+            radios.forEach(r => { r.checked = r.value === (item.status || 'ok'); });
+
+            document.getElementById('item-modal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('item-modal').classList.remove('open');
+            document.body.style.overflow = '';
+            modalItemId = null;
+        }
+
+        function changeModalQty(delta) {
+            const input = document.getElementById('modal-qty');
+            input.value = Math.max(0, parseInt(input.value) + delta);
+        }
+
+        async function saveModalChanges() {
+            if (!modalItemId) return;
+            const btn = document.getElementById('modal-save-btn');
+            btn.innerHTML = 'Salvando...';
+            btn.disabled = true;
+
+            const status = document.querySelector('input[name="modal-status"]:checked')?.value || 'ok';
+            const quantity = parseInt(document.getElementById('modal-qty').value) || 0;
+            const notes = document.getElementById('modal-notes').value.trim();
+
+            const { error } = await db.from('items').update({ status, quantity, notes }).eq('id', modalItemId);
+            btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">save</span> Salvar';
+            btn.disabled = false;
+
+            if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
+            showToast('Alterações salvas!', 'success');
+            closeModal();
+            await loadItems();
+        }
+
+        async function deleteItem() {
+            if (!modalItemId) return;
+            const item = allItems.find(i => i.id === modalItemId);
+            if (!confirm(`Excluir "${item?.name}"? Esta ação não pode ser desfeita.`)) return;
+            const { error } = await db.from('items').delete().eq('id', modalItemId);
+            if (error) { showToast('Erro ao excluir: ' + error.message, 'error'); return; }
+            showToast('Item excluído.', 'success');
+            closeModal();
+            await loadItems();
+        }
+
+        function editItemFull() {
+            const id = modalItemId;
+            closeModal();
+            openEditAdmin(id);
+        }
+
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+        document.getElementById('item-modal').addEventListener('click', e => {
+            if (e.target === document.getElementById('item-modal')) closeModal();
+        });
+
+        // ============================================================
+        // ADMIN FORM
+        // ============================================================
+        function changeQty(delta) {
+            const input = document.getElementById('f-quantity');
+            input.value = Math.max(0, parseInt(input.value || 0) + delta);
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const preview = document.getElementById('img-preview');
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                document.getElementById('img-upload-placeholder').style.display = 'none';
+                document.getElementById('remove-img-btn').classList.remove('hidden');
+                document.getElementById('img-url-input').value = '';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function previewImageUrl(url) {
+            if (!url) return;
+            const preview = document.getElementById('img-preview');
+            preview.src = url;
+            preview.classList.remove('hidden');
+            document.getElementById('img-upload-placeholder').style.display = 'none';
+            document.getElementById('remove-img-btn').classList.remove('hidden');
+            document.getElementById('img-upload').value = '';
+        }
+
+        function removeImage() {
+            const preview = document.getElementById('img-preview');
+            preview.src = '';
+            preview.classList.add('hidden');
+            document.getElementById('img-upload-placeholder').style.display = 'flex';
+            document.getElementById('remove-img-btn').classList.add('hidden');
+            document.getElementById('img-upload').value = '';
+            document.getElementById('img-url-input').value = '';
+        }
+
+        function resetForm() {
+            document.getElementById('edit-item-id').value = '';
+            document.getElementById('f-name').value = '';
+            document.getElementById('f-category').value = '';
+            document.getElementById('f-quantity').value = '0';
+            document.getElementById('f-notes').value = '';
+            document.getElementById('img-url-input').value = '';
+            document.querySelector('input[name="f-status"][value="ok"]').checked = true;
+            removeImage();
+            document.getElementById('admin-form-title').textContent = 'Adicionar Item ao Estoque';
+            document.getElementById('save-btn-text').textContent = 'Salvar Item';
+            currentEditItem = null;
+        }
+
+        function openEditAdmin(id) {
+            const item = allItems.find(i => i.id === id);
+            if (!item) return;
+            currentEditItem = item;
+            document.getElementById('edit-item-id').value = item.id;
+            document.getElementById('f-name').value = item.name;
+            document.getElementById('f-category').value = item.category;
+            document.getElementById('f-quantity').value = item.quantity;
+            document.getElementById('f-notes').value = item.notes || '';
+            document.querySelector(`input[name="f-status"][value="${item.status || 'ok'}"]`).checked = true;
+            document.getElementById('admin-form-title').textContent = 'Editar Item';
+            document.getElementById('save-btn-text').textContent = 'Atualizar Item';
+            if (item.image_url) { document.getElementById('img-url-input').value = item.image_url; previewImageUrl(item.image_url); }
+            showView('admin');
+        }
+
+        async function saveItem() {
+            const name = document.getElementById('f-name').value.trim();
+            const category = document.getElementById('f-category').value;
+            const quantity = parseInt(document.getElementById('f-quantity').value) || 0;
+            const notes = document.getElementById('f-notes').value.trim();
+            const status = document.querySelector('input[name="f-status"]:checked')?.value || 'ok';
+
+            if (!name) { showToast('Informe o nome do item!', 'error'); return; }
+            if (!category) { showToast('Selecione a categoria!', 'error'); return; }
+
+            const btn = document.getElementById('save-btn');
+            btn.disabled = true;
+            document.getElementById('save-btn-text').textContent = 'Salvando...';
+
+            let image_url = document.getElementById('img-url-input').value.trim() || null;
+
+            const fileInput = document.getElementById('img-upload');
+            if (fileInput.files[0]) {
+                const file = fileInput.files[0];
+                const ext = file.name.split('.').pop();
+                const path = `items/${Date.now()}.${ext}`;
+                const { data: uploadData, error: uploadErr } = await db.storage.from('product-images').upload(path, file, { upsert: true });
+                if (uploadErr) { showToast('Erro no upload da imagem: ' + uploadErr.message, 'error'); }
+                else {
+                    const { data: { publicUrl } } = db.storage.from('product-images').getPublicUrl(path);
+                    image_url = publicUrl;
+                }
+            }
+
+            const payload = { name, category, quantity, status, notes: notes || null, image_url };
+            const editId = document.getElementById('edit-item-id').value;
+
+            let error;
+            if (editId) { ({ error } = await db.from('items').update(payload).eq('id', editId)); }
+            else { ({ error } = await db.from('items').insert([payload])); }
+
+            btn.disabled = false;
+            document.getElementById('save-btn-text').textContent = editId ? 'Atualizar Item' : 'Salvar Item';
+
+            if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
+            showToast(editId ? 'Item atualizado com sucesso!' : 'Item adicionado ao estoque!', 'success');
+            resetForm();
+            await loadItems();
+            showView('inventory');
+        }
+
+        // ============================================================
+        // SHORTAGE REPORT
+        // ============================================================
+        function renderShortageReport() {
+            const shortages = allItems.filter(i => i.status === 'low' || i.status === 'critical')
+                .sort((a, b) => {
+                    if (a.status === 'critical' && b.status !== 'critical') return -1;
+                    if (b.status === 'critical' && a.status !== 'critical') return 1;
+                    return a.name.localeCompare(b.name);
+                });
+
+            const critical = shortages.filter(i => i.status === 'critical').length;
+            const low = shortages.filter(i => i.status === 'low').length;
+
+            document.getElementById('shortage-count').innerHTML = `${shortages.length} <span class="text-sm text-text-muted font-body font-normal">itens</span>`;
+            document.getElementById('critical-count').innerHTML = `${critical} <span class="text-sm text-text-muted font-body font-normal">itens</span>`;
+            document.getElementById('low-count').innerHTML = `${low} <span class="text-sm text-text-muted font-body font-normal">itens</span>`;
+
+            const tbody = document.getElementById('shortage-tbody');
+            const empty = document.getElementById('shortage-empty');
+
+            if (shortages.length === 0) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+
+            tbody.innerHTML = shortages.map((item, idx) => {
+                const isCrit = item.status === 'critical';
+                const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-bg-light';
+                const img = item.image_url
+                    ? `<img src="${item.image_url}" alt="${item.name}" class="w-full h-full object-contain" onerror="this.style.display='none'"/>`
+                    : `<span class="material-symbols-outlined text-text-muted">image</span>`;
+                const statusBadge = isCrit
+                    ? `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-secondary/10 border border-secondary/20 text-secondary text-xs font-bold uppercase"><span class="size-1.5 rounded-full bg-secondary animate-pulse inline-block"></span>Crítico</span>`
+                    : `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-amber-100 border border-amber-200 text-amber-700 text-xs font-bold uppercase"><span class="size-1.5 rounded-full bg-amber-500 inline-block"></span>Baixo</span>`;
+                const qtyColor = isCrit ? 'text-secondary' : 'text-amber-600';
+
+                return `<tr class="group ${rowBg} hover:bg-primary/5 transition-colors border-b border-border">
+            <td class="py-3 px-5"><div class="size-12 bg-white border border-border rounded p-1 flex items-center justify-center overflow-hidden">${img}</div></td>
+            <td class="py-3 px-5">
+                <div class="flex flex-col">
+                    <span class="font-bold text-base text-text-main group-hover:text-primary transition-colors">${item.name}</span>
+                    <span class="text-xs text-text-muted">SKU: ${item.sku || 'N/A'}</span>
+                    ${item.notes ? `<span class="text-xs text-text-muted italic mt-0.5">"${item.notes}"</span>` : ''}
+                </div>
+            </td>
+            <td class="py-3 px-5"><span class="inline-flex items-center px-2.5 py-1 rounded bg-bg-light border border-border text-xs font-bold text-text-muted uppercase">${item.category.length > 15 ? item.category.substring(0, 15) + '...' : item.category}</span></td>
+            <td class="py-3 px-5">${statusBadge}</td>
+            <td class="py-3 px-5 text-center"><span class="text-xl font-bold font-display ${qtyColor}">${item.quantity} <span class="text-xs font-normal text-text-muted">un</span></span></td>
+            <td class="py-3 px-5 text-right">
+                <button onclick="openEditAdmin('${item.id}')" class="text-text-muted hover:text-primary hover:bg-primary/10 p-2 rounded transition-colors" title="Editar">
+                    <span class="material-symbols-outlined">edit_square</span>
+                </button>
+            </td>
+        </tr>`;
+            }).join('');
+        }
+
+        // ============================================================
+        // USER MENU
+        // ============================================================
+        function toggleUserMenu() { document.getElementById('user-menu').classList.toggle('hidden'); }
+        function closeUserMenu() { document.getElementById('user-menu').classList.add('hidden'); }
+        document.addEventListener('click', e => {
+            if (!e.target.closest('[onclick="toggleUserMenu()"]') && !document.getElementById('user-menu').contains(e.target)) {
+                closeUserMenu();
+            }
+        });
+
+        // ============================================================
+        // TOAST
+        // ============================================================
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            const msgEl = document.getElementById('toast-msg');
+            toast.className = `px-5 py-3 text-white text-sm font-medium rounded-lg shadow-xl flex items-center gap-3`;
+            if (type === 'success') { toast.classList.add('bg-green-700'); icon.textContent = 'check_circle'; }
+            else if (type === 'error') { toast.classList.add('bg-red-700'); icon.textContent = 'error'; }
+            else { toast.classList.add('bg-text-main'); icon.textContent = 'info'; }
+            msgEl.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        window.addEventListener('load', () => {
+            document.getElementById('view-inventory').style.display = 'block';
+            document.getElementById('view-shortage').style.display = 'none';
+            document.getElementById('view-admin').style.display = 'none';
+            loadConfig();
+        });
+    </script>
+</body>
+
+</html>
