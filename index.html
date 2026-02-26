@@ -404,6 +404,72 @@
             border-color: #04aea0;
             color: white;
         }
+
+        /* ── ACETERNITY 3D CARD EFFECT ── */
+        .item-card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            will-change: transform;
+        }
+
+        .item-card .card-inner {
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Glare overlay */
+        .item-card .card-glare {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 30;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            background: radial-gradient(circle at 50% 50%,
+                    rgba(255, 255, 255, 0.25) 0%,
+                    rgba(255, 255, 255, 0.05) 40%,
+                    transparent 70%);
+        }
+
+        .item-card:hover .card-glare {
+            opacity: 1;
+        }
+
+        /* Depth layers via translateZ */
+        .item-card .card-img-layer {
+            transform: translateZ(20px);
+            transition: transform 0.1s ease-out;
+        }
+
+        .item-card .card-info-layer {
+            transform: translateZ(10px);
+            transition: transform 0.1s ease-out;
+        }
+
+        .item-card .card-badge-layer {
+            transform: translateZ(30px);
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Disable 3D on touch devices */
+        @media (hover: none) {
+            .item-card .card-inner {
+                transform: none !important;
+            }
+
+            .item-card .card-glare {
+                display: none;
+            }
+
+            .item-card .card-float-img {
+                transform: translateZ(0) !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            }
+        }
     </style>
 </head>
 
@@ -412,7 +478,9 @@
     <!-- ============================================================ -->
     <!-- LOGIN VIEW -->
     <!-- ============================================================ -->
-    <div id="login-view" class="min-h-screen w-full flex-row">
+    <div id="login-view" class="active min-h-screen w-full flex-row">
+
+        <!-- LEFT PANEL original -->
         <div class="hidden lg:flex w-1/2 relative bg-bg-dark overflow-hidden">
             <div class="absolute inset-0 opacity-30"
                 style="background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800'); background-size: cover; background-position: center; mix-blend-mode: overlay;">
@@ -446,6 +514,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- RIGHT PANEL -->
         <div class="flex flex-1 flex-col justify-center items-center bg-white p-6 lg:p-24 relative min-h-screen">
             <div class="lg:hidden absolute inset-0 opacity-5 pointer-events-none"
                 style="background-image: radial-gradient(#04aea0 1px, transparent 1px); background-size: 24px 24px;">
@@ -455,7 +525,7 @@
                     <div class="inline-flex lg:hidden items-center gap-2 mb-6 justify-center">
                         <img src="logo-fospar.svg" alt="Fospar" class="h-8 w-auto" />
                     </div>
-                    <h3 class="font-display text-3xl sm:text-4xl font-bold text-text-main mb-2">Bem-vindo de volta!</h3>
+                    <h3 class="font-display text-3xl sm:text-4xl font-bold text-text-main mb-2">ACESSO RESTRITO</h3>
                     <p class="font-body text-text-muted text-base sm:text-lg">Insira suas credenciais para acessar o
                         inventário.</p>
                 </div>
@@ -497,7 +567,7 @@
                     </div>
                     <button id="login-btn" onclick="handleLogin()"
                         class="mt-1 flex w-full h-[52px] sm:h-[56px] items-center justify-center bg-primary hover:bg-primary-dark active:bg-primary-dark text-white font-display font-bold text-lg sm:text-xl uppercase tracking-wide rounded transition-all group">
-                        <span id="login-btn-text">ENTRAR</span>
+                        <span id="login-btn-text">Acessar Vitrine</span>
                         <span
                             class="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
                     </button>
@@ -516,17 +586,26 @@
                     <div class="flex items-center justify-between text-xs sm:text-sm text-text-muted">
                         <div class="flex items-center gap-1.5">
                             <span class="material-symbols-outlined text-[16px]">headset_mic</span>
-                            <span>Suporte: davi.perez@mosaicco.com</span>
+                            <span>Suporte: <a href="/cdn-cgi/l/email-protection" class="__cf_email__"
+                                    data-cfemail="41252037286f312433243b012c2e32202822222e6f222e2c">[email&#160;protected]</a></span>
                         </div>
                         <span>v1.0.0</span>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- ============================================================ -->
-    <!-- MAIN APP VIEW -->
+        <!-- Pudgy Penguin GIF — fixed bottom-right corner -->
+        <img src="personcartoon.gif" alt="Person Cartoon" style="
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                width: 130px;
+                z-index: 100;
+                pointer-events: none;
+                filter: drop-shadow(0 8px 24px rgba(0,0,0,0.18));
+            " id="pudgy-gif" />
+    </div>
     <!-- ============================================================ -->
     <div id="app-view" class="flex flex-col h-screen">
 
@@ -1109,6 +1188,7 @@
     <!-- ============================================================ -->
     <!-- JAVASCRIPT -->
     <!-- ============================================================ -->
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script>
         // ============================================================
         // CONFIG & INIT
@@ -1155,6 +1235,8 @@
         function showLoginView() {
             document.getElementById('login-view').classList.add('active');
             document.getElementById('app-view').classList.remove('active');
+            const pudgy = document.getElementById('pudgy-gif');
+            if (pudgy) pudgy.style.display = 'block';
         }
 
         let isGuest = false;
@@ -1163,6 +1245,8 @@
             isGuest = user.isGuest || false;
             document.getElementById('login-view').classList.remove('active');
             document.getElementById('app-view').classList.add('active');
+            const pudgy = document.getElementById('pudgy-gif');
+            if (pudgy) pudgy.style.display = 'none';
             document.getElementById('user-email-display').textContent = isGuest ? '👁 Visitante' : user.email;
             document.querySelectorAll('.guest-hide').forEach(el => {
                 el.style.display = isGuest ? 'none' : '';
@@ -1202,7 +1286,7 @@
             if (password.length < 6) { showLoginError('Senha deve ter no mínimo 6 caracteres.'); return; }
             const { error } = await db.auth.signUp({ email, password });
             if (error) { showLoginError(error.message); }
-            else { showToast('E-mail de confirmação enviado!', 'success'); showLoginError(''); }
+            else { showToast('Conta criada! Verifique seu email para confirmar.', 'success'); showLoginError(''); }
         }
 
         async function handleLogout() {
@@ -1391,32 +1475,61 @@
                 : `<div class="flex flex-col items-center text-text-muted"><span class="material-symbols-outlined text-3xl md:text-4xl">image_not_supported</span><span class="text-xs mt-1 hidden sm:block">Sem foto</span></div>`;
 
             return `
-    <div class="item-card group relative flex flex-col bg-white rounded-lg ${borderClass} shadow-sm hover:shadow-md overflow-hidden h-[260px] md:h-[320px] cursor-pointer" onclick="openModal('${item.id}')">
-        <div class="h-1 w-full ${topBar} absolute top-0 left-0 z-10"></div>
-        <button onclick="event.stopPropagation(); openEditAdmin('${item.id}')" class="absolute top-3 right-3 z-20 bg-white/90 p-1.5 rounded-full text-text-muted hover:text-primary shadow-sm opacity-0 group-hover:opacity-100 transition-all">
-            <span class="material-symbols-outlined text-[14px] md:text-[16px]">edit</span>
-        </button>
-        <div class="item-img-section h-[48%] w-full bg-white flex items-center justify-center border-b border-border/50 p-3 pt-4">
+    <div class="item-card group relative flex flex-col bg-white rounded-xl ${borderClass} shadow-md cursor-pointer"
+         onclick="openModal('${item.id}')"
+         onmouseenter="card3DStart(this)"
+         onmousemove="card3DMove(event, this)"
+         onmouseleave="card3DEnd(this)"
+         style="perspective: 900px; transform-style: preserve-3d; height: 300px; padding: 14px 14px 12px 14px; overflow: hidden;">
+
+        <!-- Glare overlay -->
+        <div class="card-glare" style="position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:40;opacity:0;transition:opacity 0.3s;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,0.22) 0%,rgba(255,255,255,0.06) 40%,transparent 70%);"></div>
+
+        <!-- Top title + category (stays on card surface) -->
+        <div style="transform:translateZ(6px); flex-shrink:0; margin-bottom:10px;">
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] md:text-[9px] font-bold ${isCritical ? 'bg-secondary/10 text-secondary border border-secondary/20' : isLow ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-gray-100 text-text-muted'} uppercase tracking-wide mb-1">
+                ${item.category.length > 14 ? item.category.substring(0, 14) + '...' : item.category}
+            </span>
+            <h3 class="font-display font-bold text-xs md:text-sm leading-tight text-text-main line-clamp-2">${item.name}</h3>
+        </div>
+
+        <!-- FLOATING IMAGE — pops out of the card -->
+        <div class="card-float-img" style="
+            flex: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            transform: translateZ(0px);
+            transition: transform 0.55s cubic-bezier(0.23,1,0.32,1), box-shadow 0.55s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            background: #e8f0ef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        ">
+            <!-- Status bar on image top -->
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:10px 10px 0 0;background:${isCritical ? '#A33D05' : isLow ? '#f59e0b' : '#04aea0'};z-index:2;"></div>
             ${imgTag}
         </div>
-        <div class="flex-1 p-2.5 md:p-3 flex flex-col justify-between ${cardBg}">
-            <div>
-                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[8px] md:text-[9px] font-bold ${isCritical ? 'bg-secondary/10 text-secondary border border-secondary/20' : isLow ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-gray-100 text-text-muted'} uppercase tracking-wide mb-1">
-                    ${item.category.length > 12 ? item.category.substring(0, 12) + '...' : item.category}
-                </span>
-                <h3 class="font-display font-bold text-xs md:text-sm leading-tight text-text-main line-clamp-2">${item.name}</h3>
-            </div>
-            <div class="mt-1.5 md:mt-2 flex items-end justify-between">
-                <div class="flex flex-col">
-                    <span class="text-[9px] md:text-[10px] text-text-muted font-semibold uppercase tracking-wide">Unidades</span>
-                    <div class="flex items-baseline gap-1">
-                        <span class="font-display font-bold text-xl md:text-2xl leading-none ${qtyColor}">${item.quantity}</span>
-                        <span class="text-[10px] md:text-xs text-text-muted font-medium">un</span>
-                    </div>
+
+        <!-- Bottom row — qty + status (card surface) -->
+        <div style="transform:translateZ(10px); display:flex; align-items:flex-end; justify-content:space-between; margin-top:10px; flex-shrink:0;">
+            <div class="flex flex-col">
+                <span class="text-[9px] md:text-[10px] text-text-muted font-semibold uppercase tracking-wide">Unidades</span>
+                <div class="flex items-baseline gap-1">
+                    <span class="font-display font-bold text-xl md:text-2xl leading-none ${qtyColor}">${item.quantity}</span>
+                    <span class="text-[10px] md:text-xs text-text-muted font-medium">un</span>
                 </div>
-                ${statusBadge}
             </div>
+            <div style="transform:translateZ(16px);">${statusBadge}</div>
         </div>
+
+        <!-- Edit button -->
+        <button onclick="event.stopPropagation(); openEditAdmin('${item.id}')"
+            class="absolute top-3 right-3 bg-white/90 p-1.5 rounded-full text-text-muted hover:text-primary shadow-sm opacity-0 group-hover:opacity-100 transition-all"
+            style="z-index:50; transform:translateZ(22px);">
+            <span class="material-symbols-outlined text-[14px] md:text-[16px]">edit</span>
+        </button>
     </div>`;
         }
 
@@ -1861,6 +1974,68 @@
             msgEl.textContent = msg;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // ============================================================
+        // ACETERNITY 3D CARD — Mouse tilt + glare
+        // ============================================================
+        function card3DStart(card) {
+            card.style.transition = 'transform 0.3s cubic-bezier(0.23,1,0.32,1), box-shadow 0.3s ease';
+            const floatImg = card.querySelector('.card-float-img');
+            if (floatImg) {
+                floatImg.style.transition = 'transform 0.35s cubic-bezier(0.23,1,0.32,1), box-shadow 0.35s ease';
+                floatImg.style.transform = 'translateZ(20px)';
+                floatImg.style.boxShadow = '0 8px 20px rgba(0,0,0,0.13), 0 3px 8px rgba(0,0,0,0.08)';
+            }
+        }
+
+        function card3DMove(e, card) {
+            const rect = card.getBoundingClientRect();
+            const cx = rect.left + rect.width / 2;
+            const cy = rect.top + rect.height / 2;
+            const dx = e.clientX - cx;
+            const dy = e.clientY - cy;
+
+            const maxTilt = 7;
+            const rotateY = (dx / (rect.width / 2)) * maxTilt;
+            const rotateX = -(dy / (rect.height / 2)) * maxTilt;
+
+            card.style.transition = 'transform 0.08s ease-out, box-shadow 0.08s';
+            card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02,1.02,1.02)`;
+            card.style.boxShadow = `0 8px 24px rgba(0,0,0,0.1), 0 2px 8px rgba(4,174,160,0.08)`;
+
+            const floatImg = card.querySelector('.card-float-img');
+            if (floatImg) {
+                const tiltIntensity = Math.sqrt(rotateX * rotateX + rotateY * rotateY) / maxTilt;
+                const extraZ = tiltIntensity * 10;
+                floatImg.style.transition = 'transform 0.08s ease-out, box-shadow 0.08s';
+                floatImg.style.transform = `translateZ(${20 + extraZ}px)`;
+                floatImg.style.boxShadow = `0 ${8 + extraZ * 0.5}px ${20 + extraZ}px rgba(0,0,0,0.15)`;
+            }
+
+            const glare = card.querySelector('.card-glare');
+            if (glare) {
+                const px = ((e.clientX - rect.left) / rect.width) * 100;
+                const py = ((e.clientY - rect.top) / rect.height) * 100;
+                glare.style.background = `radial-gradient(circle at ${px}% ${py}%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 40%, transparent 70%)`;
+                glare.style.opacity = '1';
+            }
+        }
+
+        function card3DEnd(card) {
+            card.style.transition = 'transform 0.5s cubic-bezier(0.23,1,0.32,1), box-shadow 0.5s ease';
+            card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+            card.style.boxShadow = '';
+
+            const floatImg = card.querySelector('.card-float-img');
+            if (floatImg) {
+                floatImg.style.transition = 'transform 0.5s cubic-bezier(0.23,1,0.32,1), box-shadow 0.5s ease';
+                floatImg.style.transform = 'translateZ(0px)';
+                floatImg.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+            }
+
+            const glare = card.querySelector('.card-glare');
+            if (glare) glare.style.opacity = '0';
         }
 
         // ============================================================
